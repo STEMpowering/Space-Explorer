@@ -167,7 +167,6 @@
                     // fire the ball
                     // first correct its position into cannon coordinates
                     this.ball.parent = this.node;
-
                     this.ball.position = this.tubeVec.multiplyByFloats(1.75,1.75,1.75);
 
                     let ballVelocity = this.tubeVec.multiplyByFloats(speed, speed, speed);
@@ -176,11 +175,11 @@
                     this.ball.setEnabled(true);
 
                     // now correct ball back into world coordinates
-                    let worldMat = this.ball.computeWorldMatrix(true);
+                    /*let worldMat = this.ball.computeWorldMatrix(true);
                     this.ball.parent = null;
                     let scale = 5;
                     this.ball.scaling = new BABYLON.Vector3(scale, scale, scale);
-                    this.ball.position = BABYLON.Vector3.TransformCoordinates(this.ball.position, worldMat);
+                    this.ball.position = BABYLON.Vector3.TransformCoordinates(this.ball.position, worldMat);*/
 
                     return anim;
                 }

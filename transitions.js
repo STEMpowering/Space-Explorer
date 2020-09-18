@@ -196,7 +196,7 @@ let handlers = [
         //uiO.nextBtn.parentNode.removeChild(uiO.nextBtn);
         // create fire button
         let fireBtn = createButton(ui, 'Fire!', () => { 
-            cannon.fire(20); 
+            cannon.fire(20);
             ui.removeChild(fireBtn);
             fireBtn = createButton(ui, 'Fire!');
             fireBtn.style.color = 'red';
@@ -205,7 +205,7 @@ let handlers = [
 
             // store for later so that we can unregister velocity arrow drawing
             sceneO.velDrawer = () => {
-                let size = cannon.ball.physicsImpostor.getLinearVelocity().y;
+                let size = cannon.ball.physicsImpostor.getLinearVelocity().y * 0.1;
                 if (sceneO.velLine && sceneO.velLine.dispose) { // if its something we can dispose in babylon huyhn?
                     sceneO.velLine.dispose();
                 }
@@ -216,6 +216,7 @@ let handlers = [
                 ], sceneO.scene);
                 //cannon.node.position = cannon.ball.position;
                 sceneO.velLine.color = BABYLON.Color3.Blue();
+                sceneO.velLine.parent = cannon.node;
             };
 
             sceneO.scene.registerBeforeRender(sceneO.velDrawer);
@@ -266,6 +267,7 @@ let handlers = [
                     let line = BABYLON.MeshBuilder.CreateLines('ballLine' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
                     line.color = BABYLON.Color3.Green();
                     sceneO.ballPath.add(line);
+                    line.parent = cannon.node;
                 }
                 prevBallPos = cannon.ball.position;
                 ballI++;
@@ -273,7 +275,7 @@ let handlers = [
             sceneO.scene.registerBeforeRender(sceneO.pathDrawer);
 
             sceneO.gravDrawer = () => {
-                let size = -15;
+                let size = -15 * 0.1;
                 if (sceneO.gravLine && sceneO.gravLine.dispose) { // if its something we can dispose in babylon huyhn?
                     sceneO.gravLine.dispose();
                 }
@@ -285,6 +287,7 @@ let handlers = [
                 ], sceneO.scene);
                 //cannon.node.position = cannon.ball.position;
                 sceneO.gravLine.color = BABYLON.Color3.Red();
+                sceneO.gravLine.parent = cannon.node;
             };
 
             sceneO.scene.registerBeforeRender(sceneO.gravDrawer);
@@ -299,7 +302,7 @@ let handlers = [
 
             sceneO.scene.registerBeforeRender(sceneO.ballDisable);
 
-            cannon.ball.parent = cannon.node;
+            //cannon.ball.parent = cannon.node;
             cannon.fire(80); 
             ui.removeChild(fireBtn);
             fireBtn = createButton(ui, 'Fire!');
@@ -358,6 +361,7 @@ let handlers = [
                     let line = BABYLON.MeshBuilder.CreateLines('ballLine' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
                     line.color = BABYLON.Color3.Green();
                     sceneO.ballPath.add(line);
+                    line.parent = cannon.node;
                 }
                 prevBallPos = cannon.ball.position;
                 ballI++;
@@ -365,7 +369,7 @@ let handlers = [
             sceneO.scene.registerBeforeRender(sceneO.pathDrawer);
 
             sceneO.gravDrawer = () => {
-                let size = -15;
+                let size = -15 * 0.1;
                 if (sceneO.gravLine && sceneO.gravLine.dispose) { // if its something we can dispose in babylon huyhn?
                     sceneO.gravLine.dispose();
                 }
@@ -377,6 +381,7 @@ let handlers = [
                 ], sceneO.scene);
                 //cannon.node.position = cannon.ball.position;
                 sceneO.gravLine.color = BABYLON.Color3.Red();
+                sceneO.gravLine.parent = cannon.node;
             };
 
             sceneO.scene.registerBeforeRender(sceneO.gravDrawer);
