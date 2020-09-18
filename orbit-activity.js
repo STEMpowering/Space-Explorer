@@ -280,7 +280,7 @@ const createSpaceScene = function() {
     return scene;
 }
 
-let sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), cannon, camera }; // pack up required refs
+let sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), earth: {cannon, camera} }; // pack up required refs
 sceneO.scene = sceneO.earthScene;
 
 engine.runRenderLoop(function() {
@@ -293,8 +293,8 @@ window.addEventListener('resize', () => {
 
 // gui stuff
 function setupGUI() {
-    sceneO.cannon = cannon;
-    sceneO.camera = camera;
+    sceneO.earth.cannon = cannon;
+    sceneO.earth.camera = camera;
 
     let ui = document.getElementById('ui');
 

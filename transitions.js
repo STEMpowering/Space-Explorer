@@ -133,7 +133,7 @@ let handlers = [
         setupButton(uiO.nextBtn, nextBtnHandler);
     },
     (ui, nextBtnHandler, sceneO) => {
-        let cannon = sceneO.cannon;
+        let cannon = sceneO.earth.cannon;
         cannon.rotateTube(90);
 
         let uiO = setupBasicUI(ui);
@@ -157,7 +157,7 @@ let handlers = [
         ui.style.width = '25%';
         uiO.p.style.padding = '3em';
 
-        let camera = sceneO.camera;
+        let camera = sceneO.earth.camera;
         camera.setPosition(new BABYLON.Vector3(0, 60, 120));
     },
     (ui, nextBtnHandler) => {
@@ -187,7 +187,7 @@ let handlers = [
         setupButton(uiO.nextBtn, nextBtnHandler);
     },
     (ui, nextBtnHandler, sceneO) => {
-        let cannon = sceneO.cannon;
+        let cannon = sceneO.earth.cannon;
 
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Fire the cannon and see what happens to the ball\'s speed and direction over time!';
@@ -227,7 +227,7 @@ let handlers = [
         ui.style.width = '25%';
         uiO.p.style.padding = '3em';
 
-        let camera = sceneO.camera;
+        let camera = sceneO.earth.camera;
         camera.setPosition(new BABYLON.Vector3(4, 80, 150));
 
         //sceneO.cannon.ball.physicsImpostor = new BABYLON.PhysicsImpostor(sceneO.cannon.ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, sceneO.scene);
@@ -248,7 +248,7 @@ let handlers = [
         delete sceneO.velLine;
     },
     (ui, nextBtnHandler, sceneO) => {
-        let cannon = sceneO.cannon;
+        let cannon = sceneO.earth.cannon;
         cannon.rotateTube(-45);
 
         let uiO = setupBasicUI(ui);
@@ -316,7 +316,7 @@ let handlers = [
         ui.style.width = '25%';
         uiO.p.style.padding = '3em';
 
-        let camera = sceneO.camera;
+        let camera = sceneO.earth.camera;
         camera.setPosition(new BABYLON.Vector3(-900, 50, -400));
     },
     (ui, nextBtnHandler) => {
