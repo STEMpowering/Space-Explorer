@@ -310,12 +310,6 @@ let handlers = [
             fireBtn.style.color = 'red';
             fireBtn.style.opacity = '0.5';
             uiO.nextBtn.style.display = 'block';
-
-            /*let worldMat = cannon.ball.computeWorldMatrix(true);
-            cannon.ball.parent = null;
-            let scale = 5;
-            cannon.ball.scaling = new BABYLON.Vector3(scale, scale, scale);
-            cannon.ball.position = BABYLON.Vector3.TransformCoordinates(cannon.ball.position, worldMat);*/
         });
         fireBtn.style.color = 'red';
 
