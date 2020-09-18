@@ -294,9 +294,10 @@ let handlers = [
 
             // this disables the ball once its gone too far down
             sceneO.ballDisable = () => {
-                let limit = -5;
+                let limit = -100;
                 if (cannon.ball.position.y < limit) {
-                    cannon.ball.setEnabled(false);
+                    sceneO.scene.unregisterBeforeRender(sceneO.pathDrawer);
+                    sceneO.scene.unregisterBeforeRender(sceneO.gravDrawer);
                 }
             };
 
@@ -388,9 +389,10 @@ let handlers = [
 
             // this disables the ball once its gone too far down
             sceneO.ballDisable = () => {
-                let limit = -5;
+                let limit = -100;
                 if (cannon.ball.position.y < limit) {
-                    cannon.ball.setEnabled(false);
+                    sceneO.scene.unregisterBeforeRender(sceneO.pathDrawer);
+                    sceneO.scene.unregisterBeforeRender(sceneO.gravDrawer);
                 }
             };
 
