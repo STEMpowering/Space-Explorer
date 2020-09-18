@@ -428,6 +428,52 @@ let handlers = [
         sceneO.space.cannon = cannon;
         cannon.node.position.y += 26;
         cannon.node.scaling = new BABYLON.Vector3(2,2,2);
-        
+
+        sceneO.space.camera.setPosition(new BABYLON.Vector3(0,80,60));
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'This time, however, we brought our cannon over, and we scaled it up.';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'This means that, when we fire this cannon, the cannon ball will be moving much faster than it was on Earth!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Hence, now we must consider the curvature of the Earth for our projectiles.';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Let\'s fire one at low power, shall we?';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler, sceneO) => {
+        let cannon = sceneO.earth.cannon;
+        cannon.rotateTube(90);
+
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Fire the cannon and see what happens to the ball over time!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+        uiO.nextBtn.style.display = 'none';
+        //uiO.nextBtn.parentNode.removeChild(uiO.nextBtn);
+        // create fire button
+        let fireHandle = {};
+        let fireBtn = createButton(ui, 'Fire!', () => { 
+            cannon.fire(20); 
+            ui.removeChild(fireBtn);
+            fireBtn = createButton(ui, 'Fire!');
+            fireBtn.style.color = 'red';
+            fireBtn.style.opacity = '0.5';
+            uiO.nextBtn.style.display = 'block';
+        });
+        //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
+        fireBtn.style.color = 'red';
+
+        ui.style.width = '25%';
+        uiO.p.style.padding = '3em';
     }
 ];

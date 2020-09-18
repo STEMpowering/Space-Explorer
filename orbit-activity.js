@@ -176,6 +176,7 @@ const createSpaceScene = function() {
 
     let spaceCam = new BABYLON.ArcRotateCamera("spaceCam", -Math.PI / 2,  Math.PI / 4, 320, BABYLON.Vector3.Zero(), scene);
     spaceCam.attachControl(canvas);
+    space.camera = spaceCam;
     //let light = new BABYLON.HemisphericLight('hemilite', new BABYLON.Vector3(0,50,0), scene);
 
     let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 5000 }, scene);
