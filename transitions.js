@@ -410,5 +410,11 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Now, when we get to bigger scales, such as space, and higher speeds, we have to take into account the curvature of the Earth...';
         setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        sceneO.scene = sceneO.spaceScene;
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'ore wa o chin chin';
+        setupButton(uiO.nextBtn, nextBtnHandler);
     }
 ];
