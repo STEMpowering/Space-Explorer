@@ -416,5 +416,11 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'ore wa o chin chin';
         setupButton(uiO.nextBtn, nextBtnHandler);
+
+        // delete the garbage we don't need
+        sceneO.space.ball.dispose();
+        sceneO.space.orbitalLines.forEach((line, index) => {
+            line.dispose();
+        });
     }
 ];

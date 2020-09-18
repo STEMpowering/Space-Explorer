@@ -176,6 +176,8 @@ const createEarthScene = function() {
     return scene;
 };
 
+// space vars
+let space = {};
 // creating space scene
 const createSpaceScene = function() {
     let scene = new BABYLON.Scene(engine);
@@ -200,6 +202,7 @@ const createSpaceScene = function() {
 
     // test ball
     let ball = new BABYLON.MeshBuilder.CreateSphere('testball', {diameter: 10}, scene);
+    space.ball = ball;
     ball.position.y = 40;
     ball.physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
 
@@ -224,9 +227,11 @@ const createSpaceScene = function() {
     let orbitElems = keplerElems(new BABYLON.Vector3(190, 0, 0), ball.position, center, 1000000);
     let orbitPoints = computeOrbit(center, orbitElems, 200);
 
+    space.orbitalLines = [];
     for (let i = 0; i < orbitPoints.length - 1; i++) {
-        let line = BABYLON.MeshBuilder.CreateLines('orbit', {points: [orbitPoints[i], orbitPoints[i+1]]}, scene);
+        let line = BABYLON.MeshBuilder.CreateLines('orbit' + i, {points: [orbitPoints[i], orbitPoints[i+1]]}, scene);
         line.color = BABYLON.Color3.Green();
+        space.orbitalLines.push(line);
     }
 
     // make ball move on da rails of the orbit points
@@ -280,7 +285,7 @@ const createSpaceScene = function() {
     return scene;
 }
 
-let sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), earth: {cannon, camera} }; // pack up required refs
+let sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), earth: {cannon, camera}, space }; // pack up required refs
 sceneO.scene = sceneO.earthScene;
 
 engine.runRenderLoop(function() {
@@ -295,6 +300,8 @@ window.addEventListener('resize', () => {
 function setupGUI() {
     sceneO.earth.cannon = cannon;
     sceneO.earth.camera = camera;
+
+    sceneO.space = space;
 
     let ui = document.getElementById('ui');
 
