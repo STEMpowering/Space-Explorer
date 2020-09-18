@@ -423,7 +423,11 @@ let handlers = [
             line.dispose();
         });
 
-        let cannon = new Cannon(sceneO.scene);
-        cannon.node.position.y += 60;
+        // create cannon for our space scene woo
+        let cannon = new Cannon(sceneO.scene, true);
+        sceneO.space.cannon = cannon;
+        cannon.node.position.y += 26;
+        cannon.node.scaling = new BABYLON.Vector3(2,2,2);
+        
     }
 ];
