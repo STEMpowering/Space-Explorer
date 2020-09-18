@@ -202,12 +202,15 @@ let canvas = document.getElementById('canvas');
             let ball = new BABYLON.MeshBuilder.CreateSphere('testball', {diameter: 10}, scene);
             ball.position.y = 40;
             ball.physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+
+            let ballMat = new BABYLON.StandardMaterial('earthmat', scene);
+            ballMat.emissiveTexture = new BABYLON.Texture('textures/space-rock.jpg', scene);
+            ball.material = ballMat;
             
             // create earth
             let earth = new BABYLON.MeshBuilder.CreateSphere('earth', { diameter: 50 }, scene);
             let earthmat = new BABYLON.StandardMaterial('earthmat', scene);
             earthmat.emissiveTexture = new BABYLON.Texture('textures/earth.jpg', scene);
-            earthmat.backFaceCulling = false;
             earth.material = earthmat;
             // rotate earth so that it aint upside down
             let axis = new BABYLON.Vector3(1,0,0);
