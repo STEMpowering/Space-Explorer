@@ -40,7 +40,7 @@ const createEarthScene = function() {
     skybox.material = skyMat;
 
     // represents a cannon huyhn
-    class Cannon {
+    /*class Cannon {
         static startAngle = 5;
         static scale = 6;
         static tubeParts = new Set([5, 2, 16, 13, 14, 15, 9, 1, 12]);
@@ -109,18 +109,11 @@ const createEarthScene = function() {
 
             this.ball.setEnabled(true);
 
-            // now correct ball back into world coordinates
-            /*let worldMat = this.ball.computeWorldMatrix(true);
-            this.ball.parent = null;
-            let scale = 5;
-            this.ball.scaling = new BABYLON.Vector3(scale, scale, scale);
-            this.ball.position = BABYLON.Vector3.TransformCoordinates(this.ball.position, worldMat);*/
-
             return anim;
         }
-    }
+    }*/
 
-    // import mesh demo
+    // cannon import
     BABYLON.SceneLoader.ImportMesh("", "cannon/", "cannon.babylon", scene, function (meshes, particles, skeletons) {          
         // indices of cannon barrel parts
         let tubeParts = Cannon.tubeParts;
@@ -166,9 +159,6 @@ const createEarthScene = function() {
         // create some cannons yaa
         let cannon = new Cannon(scene);
         cannon.node.position.y += 20;
-        //cannon.rotateTube(-30);
-
-        //cannon.fire();
 
         return cannon;
     }
@@ -280,6 +270,45 @@ const createSpaceScene = function() {
         let position = rn.multiplyByFloats(delta, delta, delta);
         position = position.add(p1);
         ball.position = position;
+    });
+
+    // cannon import
+    BABYLON.SceneLoader.ImportMesh("", "cannon/", "cannon.babylon", scene, function (meshes, particles, skeletons) {          
+        Cannon.space = {};
+
+        // indices of cannon barrel parts
+        let tubeParts = Cannon.tubeParts;
+        let tubeVec = new BABYLON.Vector3(-1,0,0);
+        let tubeRotV = new BABYLON.Vector3(0,0,-1);
+
+        // create a node which pre much represents the cannon
+        let cannonNode = new BABYLON.TransformNode('cannNode');
+        let tubeNode = new BABYLON.TransformNode('tubeNode');
+        meshes.forEach((mesh, index) => {
+            mesh.parent = cannonNode;
+            if (tubeParts.has(index)) { // assign tube node as parent to any tube part
+                mesh.parent = tubeNode;
+            }
+        });
+        cannonNode.scaling = new BABYLON.Vector3(Cannon.scale, Cannon.scale, Cannon.scale);
+        // rotate tube to be level with vector
+        tubeNode.rotate( tubeRotV, -Math.PI / 180 * Cannon.startAngle );
+
+        // hide or show
+        cannonNode.setEnabled(false);
+        tubeNode.setEnabled(false);
+        Cannon.space.Meshes = meshes;
+        Cannon.space.CannonNode = cannonNode;
+        Cannon.space.TubeNode = tubeNode;
+        Cannon.space.TubeVec = tubeVec;
+        Cannon.space.TubeRotV = tubeRotV;
+
+        Cannon.space.Ball = meshes[3];
+        // detach ball parent
+        Cannon.space.Ball.parent = null;
+
+        // give the ball physics
+        Cannon.space.Ball.physicsImpostor = new BABYLON.PhysicsImpostor(Cannon.space.Ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
     });
 
     return scene;

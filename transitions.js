@@ -237,7 +237,7 @@ let handlers = [
         uiO.pContent.textContent = 'If you\'re wondering, the reason the speed arrow moves so suddenly on the ground is due to the ball\'s movement being reversed immediately on collision.';
         setupButton(uiO.nextBtn, nextBtnHandler);
     },
-    (ui, nextBtnHandler) => {
+    (ui, nextBtnHandler, sceneO) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Let\'s fire the cannon again, except we\'ll fire at an angle, and we\'ll be able to draw out the path of the ball in green. You\'ll also be able to see the direction gravity is pointing from the ball in red.';
         setupButton(uiO.nextBtn, nextBtnHandler);
@@ -411,10 +411,10 @@ let handlers = [
         uiO.pContent.textContent = 'Now, when we get to bigger scales, such as space, and higher speeds, we have to take into account the curvature of the Earth...';
         setupButton(uiO.nextBtn, nextBtnHandler);
     },
-    (ui, nextBtnHandler) => {
+    (ui, nextBtnHandler, sceneO) => {
         sceneO.scene = sceneO.spaceScene;
         let uiO = setupBasicUI(ui);
-        uiO.pContent.textContent = 'ore wa o chin chin';
+        uiO.pContent.textContent = 'Now we\'re back to space!';
         setupButton(uiO.nextBtn, nextBtnHandler);
 
         // delete the garbage we don't need
@@ -422,5 +422,8 @@ let handlers = [
         sceneO.space.orbitalLines.forEach((line, index) => {
             line.dispose();
         });
+
+        let cannon = new Cannon(sceneO.scene);
+        cannon.node.position.y += 60;
     }
 ];
