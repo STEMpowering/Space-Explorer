@@ -74,4 +74,57 @@ const computeSpeed = (E0, gravParam, r) => {
     let velSqr = E0 + gravParam / r; velSqr *= 2;
 
     return Math.sqrt(velSqr);
-}   
+}
+
+// run an orbit based on points, and potential energy for speed
+// return function needed to unregister
+const runOrbit = (object, center, rail, orbitElems, scene) => {
+    let currentPoint = 0;
+    let nextPoint = 1;
+    let delta = 0;
+    const func = () => {
+        let deltaT = scene.getEngine().getDeltaTime();
+
+        let p1 = rail[currentPoint];
+        let p2 = rail[nextPoint];
+
+        // interpolation vectors
+        let deltaR = p2.subtract(p1);
+        let rn = BABYLON.Vector3.Normalize(deltaR);
+        let r = deltaR.length();
+
+        // compute speed
+        let distV = object.position.subtract(center.position);
+        let dist = distV.length();
+        let speed = computeSpeed(orbitElems.E0, 1000000, dist);
+        speed *= .0008;
+
+        delta += speed * deltaT;
+
+        while (delta > r) {
+            delta -= r;
+
+            currentPoint++;
+            nextPoint++;
+            if (nextPoint >= rail.length) {
+                nextPoint = 0;
+            }
+            if (currentPoint >= rail.length) {
+                currentPoint = 0;
+            }
+
+            p1 = rail[currentPoint];
+            p2 = rail[nextPoint];
+
+            deltaR = p2.subtract(p1);
+            rn = BABYLON.Vector3.Normalize(deltaR);
+            r = deltaR.length();
+        }
+        let position = rn.multiplyByFloats(delta, delta, delta);
+        position = position.add(p1);
+        object.position = position;
+    };
+    scene.registerBeforeRender(func);
+
+    return func;
+}

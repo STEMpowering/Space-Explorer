@@ -226,52 +226,7 @@ const createSpaceScene = function() {
     }
 
     // make ball move on da rails of the orbit points
-    let currentPoint = 0;
-    let nextPoint = 1;
-
-    let delta = 0;
-    scene.registerBeforeRender(() => {
-        let deltaT = scene.getEngine().getDeltaTime();
-
-        let p1 = orbitPoints[currentPoint];
-        let p2 = orbitPoints[nextPoint];
-
-        // interpolation vectors
-        let deltaR = p2.subtract(p1);
-        let rn = BABYLON.Vector3.Normalize(deltaR);
-        let r = deltaR.length();
-
-        // compute speed
-        let distV = ball.position.subtract(earth.position);
-        let dist = distV.length();
-        let speed = computeSpeed(orbitElems.E0, 1000000, dist);
-        speed *= .0008;
-
-        delta += speed * deltaT;
-
-        while (delta > r) {
-            delta -= r;
-
-            currentPoint++;
-            nextPoint++;
-            if (nextPoint >= orbitPoints.length) {
-                nextPoint = 0;
-            }
-            if (currentPoint >= orbitPoints.length) {
-                currentPoint = 0;
-            }
-
-            p1 = orbitPoints[currentPoint];
-            p2 = orbitPoints[nextPoint];
-
-            deltaR = p2.subtract(p1);
-            rn = BABYLON.Vector3.Normalize(deltaR);
-            r = deltaR.length();
-        }
-        let position = rn.multiplyByFloats(delta, delta, delta);
-        position = position.add(p1);
-        ball.position = position;
-    });
+    let orbitFunc = runOrbit(ball, earth, orbitPoints, orbitElems, scene);
 
     // cannon import
     BABYLON.SceneLoader.ImportMesh("", "cannon/", "cannon.babylon", scene, function (meshes, particles, skeletons) {          
