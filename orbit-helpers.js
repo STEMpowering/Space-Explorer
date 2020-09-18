@@ -49,7 +49,7 @@ const computeOrbit = (centerPos, orbitElems, segCount) => {
     let points = [];
 
     for (let i = 0; i <= segCount; i++) {
-        let angle = i * Math.PI * 2 / segCount;
+        let angle = i * Math.PI * 2 / segCount + orbitElems.theta;
 
         let currentDist = orbitElems.p / (1 + orbitElems.eccV.length() * Math.cos(angle));
         let cos = Math.cos(angle) * currentDist;

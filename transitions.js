@@ -452,23 +452,28 @@ let handlers = [
         setupButton(uiO.nextBtn, nextBtnHandler);
     },
     (ui, nextBtnHandler, sceneO) => {
-        let cannon = sceneO.earth.cannon;
-        cannon.rotateTube(90);
+        let cannon = sceneO.space.cannon;
 
         let uiO = setupBasicUI(ui);
-        uiO.pContent.textContent = 'Fire the cannon and see what happens to the ball over time!';
+        uiO.pContent.textContent = 'Fire the cannon and watch the path of the ball!';
         setupButton(uiO.nextBtn, nextBtnHandler);
         uiO.nextBtn.style.display = 'none';
         //uiO.nextBtn.parentNode.removeChild(uiO.nextBtn);
         // create fire button
         let fireHandle = {};
         let fireBtn = createButton(ui, 'Fire!', () => { 
-            cannon.fire(20); 
+            cannon.fire(5); 
             ui.removeChild(fireBtn);
             fireBtn = createButton(ui, 'Fire!');
             fireBtn.style.color = 'red';
             fireBtn.style.opacity = '0.5';
             uiO.nextBtn.style.display = 'block';
+
+            // compute orbit for this trajectory
+            let ball = cannon.ball;
+            let orbitElems = keplerElems(ball.physicsImpostor.getLinearVelocity(), ball.position, BABYLON.Vector3.Zero(), 1000000000);
+            let orbitPoints = computeOrbit(BABYLON.Vector3.Zero(), orbitElems, 200);
+            console.log(orbitElems.eccV.length());
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
