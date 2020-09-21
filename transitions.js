@@ -528,6 +528,17 @@ let handlers = [
 
             sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
 
+            // delete lines if too many
+            sceneO.orbitDeleter = () => {
+                if (!sceneO.ballPath) {
+                    return;
+                }
+                if (sceneO.ballPath.length > 900) {
+                    sceneO.ballPath[0].dispose();
+                    sceneO.ballPath.shift();
+                }
+            };
+            sceneO.scene.registerBeforeRender(sceneO.orbitDeleter);
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
@@ -797,7 +808,6 @@ let handlers = [
             sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
 
             sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
-            
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
