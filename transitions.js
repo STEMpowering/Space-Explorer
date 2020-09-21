@@ -243,7 +243,9 @@ let handlers = [
         setupButton(uiO.nextBtn, nextBtnHandler);
 
         sceneO.scene.unregisterBeforeRender(sceneO.velDrawer); // remove da goddamn ball velocity lines!
-        sceneO.velLine.dispose();
+        if (sceneO.velLines) {
+            sceneO.velLine.dispose();
+        }
         delete sceneO.velDrawer;
         delete sceneO.velLine;
     },
@@ -428,7 +430,7 @@ let handlers = [
         // create cannon for our space scene woo
         let cannon = new Cannon(sceneO.scene, true);
         sceneO.space.cannon = cannon;
-        cannon.node.position.y += 26;
+        cannon.node.position.y += 30;
         cannon.node.scaling = new BABYLON.Vector3(2,2,2);
 
         sceneO.space.camera.setPosition(new BABYLON.Vector3(0,80,60));
@@ -460,11 +462,12 @@ let handlers = [
         uiO.pContent.textContent = 'Fire the cannon and watch the path of the ball!';
         setupButton(uiO.nextBtn, nextBtnHandler);
         uiO.nextBtn.style.display = 'none';
-        //uiO.nextBtn.parentNode.removeChild(uiO.nextBtn);
         // create fire button
         let fireHandle = {};
         let fireBtn = createButton(ui, 'Fire!', () => { 
-            cannon.fire(0); 
+            cannon.fire(0, true);
+            cannon.ball.physicsImpostor.dispose();
+            
             ui.removeChild(fireBtn);
             fireBtn = createButton(ui, 'Fire!');
             fireBtn.style.color = 'red';
@@ -473,35 +476,127 @@ let handlers = [
 
             // compute orbit for this trajectory
             let ball = cannon.ball;
-            let worldMat = ball.computeWorldMatrix(true);
-            let worldBall = BABYLON.Vector3.TransformCoordinates(ball.position, worldMat);
 
-            let orbitElems = keplerElems(new BABYLON.Vector3(0.001, 0, 0), worldBall, BABYLON.Vector3.Zero(), 0.001);
-            let orbitPoints = computeOrbit(BABYLON.Vector3.Zero(), orbitElems, 200);
-
-            // convert to local
-            let localMat = BABYLON.Matrix.Invert(worldMat);
-            orbitPoints.forEach((point, index) => {
-                orbitPoints[index] = BABYLON.Vector3.TransformCoordinates(point, localMat);
-            });
-
-            let orbitFunc = runOrbit(ball, BABYLON.Vector3.Zero(), orbitPoints, orbitElems, sceneO.scene);
+            let orbitElems = keplerElems(new BABYLON.Vector3(0.00001, 0, 0), ball.position, sceneO.space.earth.position, 0.000001);
+            let orbitPoints = computeOrbit(sceneO.space.earth.position, orbitElems, 600);
 
             let prevBallPos = null;
             let ballI = 0;
+            if (!sceneO.ballPath) {
+                sceneO.ballPath = [];
+            }
             sceneO.pathDrawer = () => {
+                if (!ball.isEnabled()) {
+                    return;
+                }
                 if (prevBallPos) {
-                    let line = BABYLON.MeshBuilder.CreateLines('ballLine' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
+                    let line = BABYLON.MeshBuilder.CreateLines('orbitlines' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
                     line.color = BABYLON.Color3.Green();
-                    sceneO.ballPath.add(line);
-                    line.parent = cannon.node;
+                    sceneO.ballPath.push(line);
                 }
                 prevBallPos = cannon.ball.position;
                 ballI++;
             };
             sceneO.scene.registerBeforeRender(sceneO.pathDrawer);
 
+            // disable ball when colliding with earth
+            sceneO.ballDisabler = () => {
+                let rad = ball.position.subtract(sceneO.space.earth.position);
+                if (rad.length() < 20) {
+                    ball.setEnabled(false);
+                }
+            }; 
+            sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
 
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+
+            console.log(orbitElems.eccV.length());
+            console.log(ball.position);
+        });
+        //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
+        fireBtn.style.color = 'red';
+
+        ui.style.width = '25%';
+        uiO.p.style.padding = '3em';
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = '...Alright, was that really unexpected?';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'But, let\'s see what happens if we increase the power a bit!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler, sceneO) => {
+        let cannon = sceneO.space.cannon;
+
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Fire the cannon at higher power and watch the path of the ball!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+        uiO.nextBtn.style.display = 'none';
+
+        // delete da lines
+        sceneO.ballPath.forEach((line, index) => {
+            line.dispose();
+        });
+        sceneO.ballPath = [];
+        sceneO.scene.unregisterBeforeRender(sceneO.pathDrawer);
+        // remove other bs from last time
+        sceneO.scene.unregisterBeforeRender(sceneO.orbitFunc);
+        sceneO.scene.unregisterBeforeRender(sceneO.ballDisabler);
+
+        // create fire button
+        let fireHandle = {};
+        let fireBtn = createButton(ui, 'Fire!', () => { 
+            cannon.fire(0, true);
+            //cannon.ball.physicsImpostor.dispose();
+            //cannon.ball.scaling = new BABYLON.Vector3(2,2,2);
+            cannon.ball.setEnabled(true);
+            
+            ui.removeChild(fireBtn);
+            fireBtn = createButton(ui, 'Fire!');
+            fireBtn.style.color = 'red';
+            fireBtn.style.opacity = '0.5';
+            uiO.nextBtn.style.display = 'block';
+
+            // compute orbit for this trajectory
+            let ball = cannon.ball;
+
+            let orbitElems = keplerElems(new BABYLON.Vector3(0.0001, 0, 0), ball.position, sceneO.space.earth.position, 0.000001);
+            let orbitPoints = computeOrbit(sceneO.space.earth.position, orbitElems, 400);
+
+            let prevBallPos = null;
+            let ballI = 0;
+            if (!sceneO.ballPath) {
+                sceneO.ballPath = [];
+            }
+            sceneO.orbitDrawrr = () => {
+                if (!ball.isEnabled()) {
+                    return;
+                }
+                if (prevBallPos) {
+                    let line = BABYLON.MeshBuilder.CreateLines('orbitlinesA' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
+                    line.color = BABYLON.Color3.Green();
+                    sceneO.ballPath.push(line);
+                }
+                prevBallPos = cannon.ball.position;
+                ballI++;
+            };
+            sceneO.scene.registerBeforeRender(sceneO.orbitDrawrr);
+            
+            // disable ball when colliding with earth
+            sceneO.ballDisabler = () => {
+                let rad = ball.position.subtract(sceneO.space.earth.position);
+                if (rad.length() < 20) {
+                    ball.setEnabled(false);
+                }
+            }; 
+            sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
+
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            
             console.log(orbitElems.eccV.length());
             console.log(ball.position);
         });

@@ -13,7 +13,7 @@ class Cannon {
             this.ball = Cannon.space.Ball.clone();
 
             // ball physics
-            this.ball.physicsImpostor = new BABYLON.PhysicsImpostor(this.ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+            //this.ball.physicsImpostor = new BABYLON.PhysicsImpostor(this.ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
 
             this.tubeRotV = new BABYLON.Vector3(); this.tubeRotV.copyFrom(Cannon.space.TubeRotV);
             this.tubeVec = new BABYLON.Vector3(); this.tubeVec.copyFrom(Cannon.space.TubeVec);
@@ -61,7 +61,7 @@ class Cannon {
     }
 
     // fire cannon
-    fire(speed) {
+    fire(speed, dontSetBall) {
         const frameRate = 5;
         let keyframes = [];
         keyframes.push({
@@ -82,14 +82,22 @@ class Cannon {
 
         this.scene.beginDirectAnimation(this.tubeNode, [anim], 0, 1 * frameRate, true);
 
+        if (!dontSetBall) {
+            let ballVelocity = this.tubeVec.multiplyByFloats(speed, speed, speed);
+            this.ball.physicsImpostor.setLinearVelocity(ballVelocity);
+        }
         // fire the ball
         // first correct its position into cannon coordinates
         this.ball.parent = this.node;
         this.ball.position = this.tubeVec.multiplyByFloats(1.75,1.75,1.75);
-
-        let ballVelocity = this.tubeVec.multiplyByFloats(speed, speed, speed);
-        this.ball.physicsImpostor.setLinearVelocity(ballVelocity);
-
+        if (dontSetBall) {
+            //this.ball.position = this.ball.position.multiplyByFloats(0.5,0.5,0.5);
+            let worldMat = this.ball.computeWorldMatrix(true);
+            this.ball.position = BABYLON.Vector3.TransformCoordinates(this.ball.position, worldMat);
+            this.ball.parent = null;
+            //this.ball.scaling = new BABYLON.Vector3(2,2,2);
+        }
+        
         this.ball.setEnabled(true);
 
         return anim;

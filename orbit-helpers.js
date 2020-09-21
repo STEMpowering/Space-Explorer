@@ -49,7 +49,7 @@ const computeOrbit = (centerPos, orbitElems, segCount) => {
     let points = [];
 
     for (let i = 0; i <= segCount; i++) {
-        let angle = -i * Math.PI * 2 / segCount + orbitElems.theta;
+        let angle = -i * Math.PI * 2 / segCount - orbitElems.theta;
 
         let currentDist = orbitElems.p / (1 + orbitElems.eccV.length() * Math.cos(angle));
         let cos = Math.cos(angle) * currentDist;
@@ -78,7 +78,7 @@ const computeSpeed = (E0, gravParam, r) => {
 
 // run an orbit based on points, and potential energy for speed
 // return function needed to unregister
-const runOrbit = (object, centerPos, rail, orbitElems, scene) => {
+const runOrbit = (object, centerPos, rail, orbitElems, scene, speedParam) => {
     let currentPoint = 0;
     let nextPoint = 1;
     let delta = 0;
@@ -97,7 +97,11 @@ const runOrbit = (object, centerPos, rail, orbitElems, scene) => {
         let distV = object.position.subtract(centerPos);
         let dist = distV.length();
         let speed = computeSpeed(orbitElems.E0, 1000000, dist);
-        speed *= .0008;
+        if (speedParam) {
+            speed *= speedParam;
+        } else {
+            speed *= .0008;
+        }
 
         delta += speed * deltaT;
 

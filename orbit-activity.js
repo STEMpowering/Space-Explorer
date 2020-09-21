@@ -39,80 +39,6 @@ const createEarthScene = function() {
     let skybox = new BABYLON.Mesh.CreateBox('skybox', 5000, scene);
     skybox.material = skyMat;
 
-    // represents a cannon huyhn
-    /*class Cannon {
-        static startAngle = 5;
-        static scale = 6;
-        static tubeParts = new Set([5, 2, 16, 13, 14, 15, 9, 1, 12]);
-
-        constructor(scene) {
-            this.scene = scene;
-
-            this.node = Cannon.CannonNode.clone();
-            this.tubeNode = Cannon.TubeNode.clone();
-            this.ball = Cannon.Ball.clone();
-
-            // ball physics
-            //this.ball.physicsImpostor = new BABYLON.PhysicsImpostor(this.ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-
-            this.tubeRotV = new BABYLON.Vector3(); this.tubeRotV.copyFrom(Cannon.TubeRotV);
-            this.tubeVec = new BABYLON.Vector3(); this.tubeVec.copyFrom(Cannon.TubeVec);
-            this.tubeRotV.parent = this.node;
-            this.tubeVec.parent = this.node;
-
-            this.tubeNode.parent = this.node;
-            this.ball.parent = this.node;
-
-            this.node.setEnabled(true);
-            this.ball.setEnabled(false);
-        }
-        // rotate tube by certain angle, including vector used to position tube when firing
-        rotateTube(angle) {
-            this.tubeNode.rotate( this.tubeRotV, Math.PI / 180 * angle );
-
-            let rotMat = BABYLON.Matrix.RotationAxis(this.tubeRotV, Math.PI / 180 * angle)
-            this.tubeVec = BABYLON.Vector3.TransformCoordinates(this.tubeVec, rotMat);
-        }
-        translateTube(amount) {
-            this.tubeNode.translate( this.tubeVec, amount / 6 * Cannon.scale, BABYLON.Space.WORLD);
-        }
-
-        // fire cannon
-        fire(speed) {
-            const frameRate = 5;
-            let keyframes = [];
-            keyframes.push({
-                frame: 0,
-                value: new BABYLON.Vector3(0,0,0)
-            });
-            keyframes.push({
-                frame: 0.1 * frameRate,
-                value: this.tubeVec.multiplyByFloats(-1,-1,-1)
-            });
-
-            keyframes.push({
-                frame: 1 * frameRate,
-                value: new BABYLON.Vector3(0,0,0)
-            });
-            let anim = new BABYLON.Animation("fireCannon", "position", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-            anim.setKeys(keyframes);
-
-            this.scene.beginDirectAnimation(this.tubeNode, [anim], 0, 1 * frameRate, true);
-
-            // fire the ball
-            // first correct its position into cannon coordinates
-            this.ball.parent = this.node;
-            this.ball.position = this.tubeVec.multiplyByFloats(1.75,1.75,1.75);
-
-            let ballVelocity = this.tubeVec.multiplyByFloats(speed, speed, speed);
-            this.ball.physicsImpostor.setLinearVelocity(ballVelocity);
-
-            this.ball.setEnabled(true);
-
-            return anim;
-        }
-    }*/
-
     // cannon import
     BABYLON.SceneLoader.ImportMesh("", "cannon/", "cannon.babylon", scene, function (meshes, particles, skeletons) {          
         // indices of cannon barrel parts
@@ -166,6 +92,7 @@ const createEarthScene = function() {
     return scene;
 };
 
+let debugCallback = {};
 // space vars
 let space = {};
 // creating space scene
@@ -212,10 +139,12 @@ const createSpaceScene = function() {
 
     earth.physicsImpostor = new BABYLON.PhysicsImpostor(earth, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0, restitution: 0.9 }, scene);
 
+    space.earth = earth;
+
     // calculate keplerian orbit
     let center = earth.position;
 
-    let orbitElems = keplerElems(new BABYLON.Vector3(190, 0, 0), ball.position, center, 1000000);
+    let orbitElems = keplerElems(new BABYLON.Vector3(190, 10, 0), ball.position, center, 1000000);
     let orbitPoints = computeOrbit(center, orbitElems, 200);
 
     space.orbitalLines = [];
@@ -289,7 +218,6 @@ function setupGUI() {
     sceneO.space = space;
 
     let ui = document.getElementById('ui');
-
     // shit for gui change
     let handI = 0;
     function nextBtnHandler() { // next button response handle, change shit on screen
@@ -298,4 +226,13 @@ function setupGUI() {
         handlers[handI](ui, nextBtnHandler, sceneO);
     }
     handlers[handI](ui, nextBtnHandler, sceneO);
+
+    debugCallback = () => {
+        let count = 20;
+        for (let i = 0; i < count; i++) {
+            nextBtnHandler();
+        }
+    }
+
+    setTimeout(debugCallback, 500);
 }
