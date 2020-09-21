@@ -107,6 +107,8 @@ const createSpaceScene = function() {
     //let light = new BABYLON.HemisphericLight('hemilite', new BABYLON.Vector3(0,50,0), scene);
 
     let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 5000 }, scene);
+    let axis = new BABYLON.Vector3(0,0,1);
+    skydome.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(axis, Math.PI / 2);
 
     let spacemat = new BABYLON.StandardMaterial('spacemat', scene);
     spacemat.emissiveTexture = new BABYLON.Texture('textures/space-dome.jpg', scene);
@@ -134,8 +136,8 @@ const createSpaceScene = function() {
     earthmat.emissiveTexture = new BABYLON.Texture('textures/earth.jpg', scene);
     earth.material = earthmat;
     // rotate earth so that it aint upside down
-    let axis = new BABYLON.Vector3(1,0,0);
-    earth.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(axis, Math.PI);
+    //let axis = new BABYLON.Vector3(1,0,0);
+    //earth.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(axis, Math.PI);
 
     earth.physicsImpostor = new BABYLON.PhysicsImpostor(earth, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0, restitution: 0.9 }, scene);
 
