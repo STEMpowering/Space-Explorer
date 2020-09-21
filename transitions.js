@@ -467,6 +467,7 @@ let handlers = [
         let fireBtn = createButton(ui, 'Fire!', () => { 
             cannon.fire(0, true);
             cannon.ball.physicsImpostor.dispose();
+            cannon.ball.scaling = new BABYLON.Vector3(2,2,2);
             
             ui.removeChild(fireBtn);
             fireBtn = createButton(ui, 'Fire!');
@@ -602,6 +603,326 @@ let handlers = [
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
+
+        ui.style.width = '25%';
+        uiO.p.style.padding = '3em';
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Do you see that?';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'It\'s as if the ball is curving around the Earth!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Let\'s keep trying slightly more power for each run!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler, sceneO) => {
+        let cannon = sceneO.space.cannon;
+
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Fire the cannon at higher power and watch the path of the ball!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+        uiO.nextBtn.style.display = 'none';
+
+        // delete da lines
+        sceneO.ballPath.forEach((line, index) => {
+            line.dispose();
+        });
+        sceneO.ballPath = [];
+        sceneO.scene.unregisterBeforeRender(sceneO.orbitDrawrr);
+        // remove other bs from last time
+        sceneO.scene.unregisterBeforeRender(sceneO.orbitFunc);
+        sceneO.scene.unregisterBeforeRender(sceneO.ballDisabler);
+
+        // create fire button
+        let fireHandle = {};
+        let fireBtn = createButton(ui, 'Fire!', () => { 
+            cannon.fire(0, true);
+            //cannon.ball.physicsImpostor.dispose();
+            //cannon.ball.scaling = new BABYLON.Vector3(2,2,2);
+            cannon.ball.setEnabled(true);
+            
+            ui.removeChild(fireBtn);
+            fireBtn = createButton(ui, 'Fire!');
+            fireBtn.style.color = 'red';
+            fireBtn.style.opacity = '0.5';
+            uiO.nextBtn.style.display = 'block';
+
+            // compute orbit for this trajectory
+            let ball = cannon.ball;
+
+            let orbitElems = keplerElems(new BABYLON.Vector3(0.00017, 0, 0), ball.position, sceneO.space.earth.position, 0.000001);
+            let orbitPoints = computeOrbit(sceneO.space.earth.position, orbitElems, 400);
+
+            let prevBallPos = null;
+            let ballI = 0;
+            if (!sceneO.ballPath) {
+                sceneO.ballPath = [];
+            }
+            sceneO.orbitDrawrr = () => {
+                if (!ball.isEnabled()) {
+                    return;
+                }
+                if (prevBallPos) {
+                    let line = BABYLON.MeshBuilder.CreateLines('orbitlinesA' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
+                    line.color = BABYLON.Color3.Green();
+                    sceneO.ballPath.push(line);
+                }
+                prevBallPos = cannon.ball.position;
+                ballI++;
+            };
+            sceneO.scene.registerBeforeRender(sceneO.orbitDrawrr);
+            
+            // disable ball when colliding with earth
+            sceneO.ballDisabler = () => {
+                let rad = ball.position.subtract(sceneO.space.earth.position);
+                if (rad.length() < 24) {
+                    ball.setEnabled(false);
+                }
+            }; 
+            sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
+
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            
+            console.log(orbitElems.eccV.length());
+            console.log(ball.position);
+        });
+        //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
+        fireBtn.style.color = 'red';
+
+        ui.style.width = '25%';
+        uiO.p.style.padding = '3em';
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'The ball isn\'t going only downwards anymore...';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Instead, it keeps getting attracted toward the Earth.';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'It\'s as if the ball keeps trying to hit Earth, but it\'s missing everytime due to it\'s speed!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Let\'s increase the power one more time!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler, sceneO) => {
+        let cannon = sceneO.space.cannon;
+
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Fire the cannon at higher power and watch the path of the ball!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+        uiO.nextBtn.style.display = 'none';
+
+        // delete da lines
+        sceneO.ballPath.forEach((line, index) => {
+            line.dispose();
+        });
+        sceneO.ballPath = [];
+        sceneO.scene.unregisterBeforeRender(sceneO.orbitDrawrr);
+        // remove other bs from last time
+        sceneO.scene.unregisterBeforeRender(sceneO.orbitFunc);
+        sceneO.scene.unregisterBeforeRender(sceneO.ballDisabler);
+
+        // create fire button
+        let fireHandle = {};
+        let fireBtn = createButton(ui, 'Fire!', () => { 
+            cannon.fire(0, true);
+            //cannon.ball.physicsImpostor.dispose();
+            //cannon.ball.scaling = new BABYLON.Vector3(2,2,2);
+            cannon.ball.setEnabled(true);
+            
+            ui.removeChild(fireBtn);
+            fireBtn = createButton(ui, 'Fire!');
+            fireBtn.style.color = 'red';
+            fireBtn.style.opacity = '0.5';
+            uiO.nextBtn.style.display = 'block';
+
+            // compute orbit for this trajectory
+            let ball = cannon.ball;
+
+            let orbitElems = keplerElems(new BABYLON.Vector3(0.000205, 0, 0), ball.position, sceneO.space.earth.position, 0.000001);
+            let orbitPoints = computeOrbit(sceneO.space.earth.position, orbitElems, 400);
+
+            let prevBallPos = null;
+            let ballI = 0;
+            if (!sceneO.ballPath) {
+                sceneO.ballPath = [];
+            }
+            sceneO.orbitDrawrr = () => {
+                if (!ball.isEnabled()) {
+                    return;
+                }
+                if (prevBallPos) {
+                    let line = BABYLON.MeshBuilder.CreateLines('orbitlinesA' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
+                    line.color = BABYLON.Color3.Green();
+                    sceneO.ballPath.push(line);
+                }
+                prevBallPos = cannon.ball.position;
+                ballI++;
+            };
+            sceneO.scene.registerBeforeRender(sceneO.orbitDrawrr);
+            
+            // disable ball when colliding with earth
+            sceneO.ballDisabler = () => {
+                let rad = ball.position.subtract(sceneO.space.earth.position);
+                if (rad.length() < 24) {
+                    ball.setEnabled(false);
+                }
+            }; 
+            sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
+
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            
+            console.log(orbitElems.eccV.length());
+            console.log(ball.position);
+        });
+        //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
+        fireBtn.style.color = 'red';
+
+        ui.style.width = '25%';
+        uiO.p.style.padding = '3em';
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'The ball is no longer hitting the Earth...';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Awesome! You\'ve just put your first object into orbit!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'That\'s essentially what an orbit is - launching something so fast that it misses the body it is orbitting.';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'That is what the cannon ball is doing, and that is what the Moon does too!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'That is why, even though the Earth has gravity, the Moon doesn\'t come crashing into the Earth!';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'This is also what the rest of the planets do around the Sun.';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler) => {
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Anyway, as a prize for your achievement, you can now mess around with the cannon and see what kind of orbits you can make! :D';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+    },
+    (ui, nextBtnHandler, sceneO) => {
+        let cannon = sceneO.space.cannon;
+
+        let uiO = setupBasicUI(ui);
+        uiO.pContent.textContent = 'Mess around as you please! :D';
+        setupButton(uiO.nextBtn, nextBtnHandler);
+        uiO.nextBtn.style.display = 'none';
+
+        let p = createP('Change the angle of the cannon!')
+        p.p.style.marginLeft = '1em';
+        p.p.style.marginBottom = '0.5em';
+        ui.appendChild(p.p);
+
+        let textIn = createTxtIn(ui);
+        textIn.style.marginLeft = '1em';
+        textIn.setAttribute('value', '0');
+        setupButton(uiO.nextBtn, nextBtnHandler);
+
+
+        // create fire button
+        let fireHandle = {};
+        let prevAngle = 0;
+        let fireBtn = createButton(ui, 'Fire!', () => { 
+            // delete da lines
+            sceneO.ballPath.forEach((line, index) => {
+                line.dispose();
+            });
+            sceneO.ballPath = [];
+            sceneO.scene.unregisterBeforeRender(sceneO.orbitDrawrr);
+            // remove other bs from last time
+            sceneO.scene.unregisterBeforeRender(sceneO.orbitFunc);
+            sceneO.scene.unregisterBeforeRender(sceneO.ballDisabler);
+
+            // change angle, based on delta since cannon doesn't store current angle
+            let currentAngle = textIn.value;
+            let deltaAngle = currentAngle - prevAngle;
+            prevAngle = currentAngle;
+            cannon.rotateTube(deltaAngle);
+
+            cannon.fire(0, true);
+            //cannon.ball.physicsImpostor.dispose();
+            //cannon.ball.scaling = new BABYLON.Vector3(2,2,2);
+            cannon.ball.setEnabled(true);
+            
+            /*ui.removeChild(fireBtn);
+            fireBtn = createButton(ui, 'Fire!');
+            fireBtn.style.color = 'red';
+            fireBtn.style.opacity = '0.5';
+            uiO.nextBtn.style.display = 'block';*/
+
+            // compute orbit for this trajectory
+            let ball = cannon.ball;
+
+            let orbitElems = keplerElems(new BABYLON.Vector3(0.000205, 0, 0), ball.position, sceneO.space.earth.position, 0.000001);
+            let orbitPoints = computeOrbit(sceneO.space.earth.position, orbitElems, 400);
+
+            let prevBallPos = null;
+            let ballI = 0;
+            if (!sceneO.ballPath) {
+                sceneO.ballPath = [];
+            }
+            sceneO.orbitDrawrr = () => {
+                if (!ball.isEnabled()) {
+                    return;
+                }
+                if (prevBallPos) {
+                    let line = BABYLON.MeshBuilder.CreateLines('orbitlinesA' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
+                    line.color = BABYLON.Color3.Green();
+                    sceneO.ballPath.push(line);
+                }
+                prevBallPos = cannon.ball.position;
+                ballI++;
+            };
+            sceneO.scene.registerBeforeRender(sceneO.orbitDrawrr);
+            
+            // disable ball when colliding with earth
+            sceneO.ballDisabler = () => {
+                let rad = ball.position.subtract(sceneO.space.earth.position);
+                if (rad.length() < 24) {
+                    ball.setEnabled(false);
+                }
+            }; 
+            sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
+
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            
+            console.log(orbitElems.eccV.length());
+            console.log(ball.position);
+        });
+        //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
+        fireBtn.style.color = 'red';
+        fireBtn.style.marginLeft = '1em';
 
         ui.style.width = '25%';
         uiO.p.style.padding = '3em';
