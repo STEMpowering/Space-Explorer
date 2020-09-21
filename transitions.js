@@ -96,6 +96,18 @@ function createTxtIn(ui) {
     return box;
 }
 
+// create text box
+function createRange(ui, min, max, step) {
+    let range = document.createElement('INPUT');
+    range.setAttribute('type', 'range');
+    range.setAttribute('max', max);
+    range.setAttribute('min', min);
+    range.setAttribute('step', step);
+    ui.appendChild(range);
+
+    return range;
+}
+
 // creating list element
 function createListElem(text, padTop) {
     let li = document.createElement('LI');
@@ -247,6 +259,7 @@ let handlers = [
             sceneO.velLine.dispose();
         }
         delete sceneO.velDrawer;
+        sceneO.velLine.dispose();
         delete sceneO.velLine;
     },
     (ui, nextBtnHandler, sceneO) => {
@@ -397,10 +410,12 @@ let handlers = [
             sceneO.scene.registerBeforeRender(sceneO.ballDisable);
 
             // change angle, based on delta since cannon doesn't store current angle
-            let currentAngle = textIn.value;
-            let deltaAngle = currentAngle - prevAngle;
-            prevAngle = currentAngle;
-            cannon.rotateTube(deltaAngle);
+            if (!isNaN(textIn.value)) {
+                let currentAngle = textIn.value;
+                let deltaAngle = currentAngle - prevAngle;
+                prevAngle = currentAngle;
+                cannon.rotateTube(deltaAngle);
+            }
 
             //cannon.ball.parent = cannon.node;
             cannon.fire(80); 
@@ -483,9 +498,11 @@ let handlers = [
 
             let prevBallPos = null;
             let ballI = 0;
-            if (!sceneO.ballPath) {
-                sceneO.ballPath = [];
-            }
+            
+            sceneO.ballPath.forEach((line, index) => {
+                line.dispose();
+            });
+            sceneO.ballPath = [];
             sceneO.pathDrawer = () => {
                 if (!ball.isEnabled()) {
                     return;
@@ -511,8 +528,6 @@ let handlers = [
 
             sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
 
-            console.log(orbitElems.eccV.length());
-            console.log(ball.position);
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
@@ -598,8 +613,6 @@ let handlers = [
 
             sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
             
-            console.log(orbitElems.eccV.length());
-            console.log(ball.position);
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
@@ -690,8 +703,6 @@ let handlers = [
 
             sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
             
-            console.log(orbitElems.eccV.length());
-            console.log(ball.position);
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
@@ -787,8 +798,6 @@ let handlers = [
 
             sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
             
-            console.log(orbitElems.eccV.length());
-            console.log(ball.position);
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
@@ -839,16 +848,16 @@ let handlers = [
         setupButton(uiO.nextBtn, nextBtnHandler);
         uiO.nextBtn.style.display = 'none';
 
-        let p = createP('Change the angle of the cannon!')
-        p.p.style.marginLeft = '1em';
-        p.p.style.marginBottom = '0.5em';
-        ui.appendChild(p.p);
+        let d = createP('Change the power of the cannon!')
+        d.p.style.marginLeft = '1em';
+        d.p.style.marginBottom = '0.5em';
+        ui.appendChild(d.p);
 
-        let textIn = createTxtIn(ui);
-        textIn.style.marginLeft = '1em';
-        textIn.setAttribute('value', '0');
-        setupButton(uiO.nextBtn, nextBtnHandler);
-
+        let range = createRange(ui, 0, 0.0003, 0.000001);
+        range.style.display = 'block';
+        range.style.marginLeft = '1em';
+        range.value = '0.000205';
+        ui.appendChild(range);
 
         // create fire button
         let fireHandle = {};
@@ -864,27 +873,15 @@ let handlers = [
             sceneO.scene.unregisterBeforeRender(sceneO.orbitFunc);
             sceneO.scene.unregisterBeforeRender(sceneO.ballDisabler);
 
-            // change angle, based on delta since cannon doesn't store current angle
-            let currentAngle = textIn.value;
-            let deltaAngle = currentAngle - prevAngle;
-            prevAngle = currentAngle;
-            cannon.rotateTube(deltaAngle);
-
             cannon.fire(0, true);
             //cannon.ball.physicsImpostor.dispose();
             //cannon.ball.scaling = new BABYLON.Vector3(2,2,2);
             cannon.ball.setEnabled(true);
-            
-            /*ui.removeChild(fireBtn);
-            fireBtn = createButton(ui, 'Fire!');
-            fireBtn.style.color = 'red';
-            fireBtn.style.opacity = '0.5';
-            uiO.nextBtn.style.display = 'block';*/
 
             // compute orbit for this trajectory
             let ball = cannon.ball;
 
-            let orbitElems = keplerElems(new BABYLON.Vector3(0.000205, 0, 0), ball.position, sceneO.space.earth.position, 0.000001);
+            let orbitElems = keplerElems(new BABYLON.Vector3(range.value, 0, 0), ball.position, sceneO.space.earth.position, 0.000001);
             let orbitPoints = computeOrbit(sceneO.space.earth.position, orbitElems, 400);
 
             let prevBallPos = null;
@@ -917,12 +914,11 @@ let handlers = [
 
             sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
             
-            console.log(orbitElems.eccV.length());
-            console.log(ball.position);
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
         fireBtn.style.marginLeft = '1em';
+        fireBtn.style.marginTop = '1em';
 
         ui.style.width = '25%';
         uiO.p.style.padding = '3em';

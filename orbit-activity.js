@@ -234,5 +234,5 @@ function setupGUI() {
         }
     }
 
-    setTimeout(debugCallback, 500);
+    //setTimeout(debugCallback, 500);
 }
