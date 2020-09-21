@@ -1,31 +1,286 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newton's Cannon Test</title>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-    <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
-    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
-    <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
-    <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
-    <script src='https://cdn.babylonjs.com/cannon.js'></script>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <!-- own dependencies -->
-    <script src='transitions.js'></script>
-    <script src='orbit-helpers.js'></script>
-    <script src='cannon.js'></script>
-    <link rel='stylesheet' href='index.css'>
-</head>
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/libktx.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/cannon@0.6.2/build/cannon.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/babylonjs-gui@3.3.0/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #canvas {
+                width: 100%;
+                touch-action: none;
+            }
+        </style>
+        <link rel='stylesheet' href='index.css'>
+    </head>
 <body>
     <div id='game'>
         <div id='ui'></div>
-        <canvas id='canvas'></canvas>
+        <canvas id="canvas"></canvas>
     </div>
+    <script>
+        var canvas = document.getElementById("canvas");
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+
+            let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 5000 }, scene);
+            let axis = new BABYLON.Vector3(0,0,1);
+            skydome.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(axis, Math.PI / 2);
+
+            let spacemat = new BABYLON.StandardMaterial('spacemat', scene);
+            spacemat.emissiveTexture = new BABYLON.Texture('textures/space-dome.jpg', scene);
+            spacemat.backFaceCulling = false;
+            skydome.material = spacemat;
+        
+            // Setup camera
+            var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 0, BABYLON.Vector3.Zero(), scene);
+            camera.setPosition(new BABYLON.Vector3(0, 1000, -1000));
+            camera.attachControl(canvas, true);
+        
+            // sun sphere - size decreased by 20x
+            var sun = BABYLON.MeshBuilder.CreateSphere("sun", {diameter: 69.635, diameterX: 69.635}, scene);
+        	sun.position = new BABYLON.Vector3(0, 0, 0);
+            var material = new BABYLON.StandardMaterial("sunmaterial", scene);
+            sun.material = material;
+            sun.material.emissiveColor = new BABYLON.Color3(1, 1, 0);
+        
+            // sun light
+            var light0 = new BABYLON.PointLight("Omni0", sun.position, scene);
+            light0.diffuse = new BABYLON.Color3(1, 1, 1);
+        	
+        
+        	var ref = BABYLON.Mesh.CreateGround("gnd", 40, 40, 16, scene);
+        	ref.material = new BABYLON.StandardMaterial("texture1", scene);
+        	ref.material.wireframe = true;
+        
+        	// earth
+            var earth = BABYLON.MeshBuilder.CreateSphere("earth", {diameter: 12.7, diameterX: 12.7}, scene);
+        	earth.position.x = 4;
+        	earth.parent = sun;
+            
+        	var earthMaterial = new BABYLON.StandardMaterial("earthSurface", scene);
+            earthMaterial.diffuseTexture = new BABYLON.Texture("textures/earth.jpg", scene);
+        	earth.material = earthMaterial
+            earth.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            earth.material.specularColor = new BABYLON.Color3(0, 0, 0);
+            
+        	// moon
+            var moon = BABYLON.MeshBuilder.CreateSphere("moon", {diameter: 3.4, diameterX: 3.4}, scene);
+        	//moon.translate(earth.position, 5, BABYLON.Space.WORLD);
+        	moon.position.x = 50;
+        	moon.bakeCurrentTransformIntoVertices();
+        	moon.position.x = 0;
+        	//moon.parent = earth;
+            
+            // mars
+            var mars = BABYLON.MeshBuilder.CreateSphere("mars", {diameter: 6.779, diameterX: 6.779}, scene);
+        	mars.position.x = 4;
+        	mars.parent = sun;
+            
+            var marsMaterial = new BABYLON.StandardMaterial("marsSurface", scene);
+            marsMaterial.diffuseTexture = new BABYLON.Texture("textures/mars.jpg", scene);
+        	mars.material = marsMaterial
+            mars.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            mars.material.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            // mercury
+            var mercury = BABYLON.MeshBuilder.CreateSphere("mercury", {diameter: 4.8794, diameterX: 4.8794}, scene);
+        	mercury.position.x = 4;
+        	mercury.parent = sun;
+        
+        	var mercuryMaterial = new BABYLON.StandardMaterial("mercurySurface", scene);
+            mercuryMaterial.diffuseTexture = new BABYLON.Texture("textures/mercury.jpg", scene);
+        	mercury.material = mercuryMaterial
+            mercury.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            mercury.material.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            //Venus
+            var venus = BABYLON.MeshBuilder.CreateSphere("venus", {diameter: 12.1, diameterX: 12.1}, scene);
+        	venus.position.x = 4;
+        	venus.parent = sun;
+        
+        	var venusMaterial = new BABYLON.StandardMaterial("venusSurface", scene);
+            venusMaterial.diffuseTexture = new BABYLON.Texture("textures/venus.jpg", scene);
+        	venus.material = venusMaterial
+            venus.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            venus.material.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            //Venus
+            var jupiter = BABYLON.MeshBuilder.CreateSphere("jupiter", {diameter: 139.82, diameterX: 139.82}, scene);
+        	jupiter.position.x = 4;
+        	jupiter.parent = sun;
+        
+        	var jupiterMaterial = new BABYLON.StandardMaterial("jupiterSurface", scene);
+            jupiterMaterial.diffuseTexture = new BABYLON.Texture("textures/jupiter.jpg", scene);
+        	jupiter.material = jupiterMaterial
+            jupiter.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            jupiter.material.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            //Saturn
+            var saturn = BABYLON.MeshBuilder.CreateSphere("saturn", {diameter: 116.46, diameterX: 116.46}, scene);
+        	saturn.position.x = 4;
+        	saturn.parent = sun;
+        
+        	var saturnMaterial = new BABYLON.StandardMaterial("saturnSurface", scene);
+            saturnMaterial.diffuseTexture = new BABYLON.Texture("textures/saturn.jpg", scene);
+        	saturn.material = saturnMaterial
+            saturn.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            saturn.material.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            //Uranus
+            var uranus = BABYLON.MeshBuilder.CreateSphere("uranus", {diameter: 49.244, diameterX: 49.244}, scene);
+        	uranus.position.x = 4;
+        	uranus.parent = sun;
+        
+        	var uranusMaterial = new BABYLON.StandardMaterial("uranusSurface", scene);
+            uranusMaterial.diffuseTexture = new BABYLON.Texture("textures/uranus.jpg", scene);
+        	uranus.material = uranusMaterial
+            uranus.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            uranus.material.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            //Neptune
+            var neptune = BABYLON.MeshBuilder.CreateSphere("neptune", {diameter: 50.724, diameterX: 50.724}, scene);
+        	neptune.position.x = 4;
+        	neptune.parent = sun;
+        
+        	var neptuneMaterial = new BABYLON.StandardMaterial("neptuneSurface", scene);
+            neptuneMaterial.diffuseTexture = new BABYLON.Texture("textures/neptune.jpg", scene);
+        	neptune.material = neptuneMaterial
+            neptune.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            neptune.material.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+            //advancedTexture
+            var UiPanel02 = new BABYLON.GUI.StackPanel("horizontal");
+            UiPanel02.isVertical = false;
+            UiPanel02.top = "30%";
+            UiPanel02.width = "360px";
+            UiPanel02.height = "160px";
+            UiPanel02.fontSize = "14px";
+            UiPanel02.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            UiPanel02.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            advancedTexture.addControl(UiPanel02);
+
+            // Animations
+            var alpha = Math.PI;
+            var mars_alpha = Math.PI;
+            var mercury_alpha = Math.PI;
+            var venus_alpha = Math.PI;
+            var jupiter_alpha = Math.PI;
+            var saturn_alpha = Math.PI;
+            var uranus_alpha = Math.PI;
+            var neptune_alpha = Math.PI;
+
+            scene.beforeRender = function () {
+        		earth.position = new BABYLON.Vector3(200 * Math.sin(alpha), earth.parent.position.y, 200 * Math.cos(alpha));
+        		earth.rotation.y += .003;
+        
+        		moon.position = earth.position;
+        		moon.rotation.y -= .1;
+        		
+                mars.position = new BABYLON.Vector3(300 * Math.sin(mars_alpha), mars.parent.position.y, 300 * Math.cos(mars_alpha));
+        		mars.rotation.y += .002;
+                
+                mercury.position = new BABYLON.Vector3(-75 * Math.sin(mercury_alpha), mercury.parent.position.y, -75 * Math.cos(mercury_alpha));
+        		mercury.rotation.y += .0067;
+
+                venus.position = new BABYLON.Vector3(-125* Math.sin(venus_alpha), venus.parent.position.y, -125 * Math.cos(venus_alpha));
+        		venus.rotation.y += .0067;
+
+                jupiter.position = new BABYLON.Vector3(-450* Math.sin(jupiter_alpha), jupiter.parent.position.y, -450 * Math.cos(jupiter_alpha));
+        		jupiter.rotation.y += .0067;
+
+                saturn.position = new BABYLON.Vector3(650* Math.sin(saturn_alpha), saturn.parent.position.y, 650 * Math.cos(saturn_alpha));
+        		saturn.rotation.y -= .0067;
+
+                uranus.position = new BABYLON.Vector3(-750* Math.sin(uranus_alpha), uranus.parent.position.y, -750 * Math.cos(uranus_alpha));
+        		uranus.rotation.y -= .0067;
+
+                neptune.position = new BABYLON.Vector3(-850* Math.sin(neptune_alpha), neptune.parent.position.y, -850 * Math.cos(neptune_alpha));
+        		neptune.rotation.y -= .0067;
+
+        		// moon.position = new BABYLON.Vector3(5 * Math.sin(alpha-.8), moon.parent.position.y, 5 * Math.cos(alpha-.8));
+        				
+        		alpha += 0.005;
+                mars_alpha += 0.0025;
+                mercury_alpha += 0.05;
+                venus_alpha += 0.017;
+                jupiter_alpha += 0.0004;
+        		saturn_alpha += 0.00017;	
+                uranus_alpha += 0.0000595;
+                neptune_alpha += 0.0000303;
+
+        		// spin
+        //		earth.rotate(BABYLON.Axis.Y, 0.05, BABYLON.Space.WORLD);
+        //		earth.rotate(BABYLON.Axis.Y, 0.05, BABYLON.Space.LOCAL);
+        //		moon.rotate(BABYLON.Axis.Y, -0.05, BABYLON.Space.LOCAL);
+            };
+        
+            return scene;
+        }
     
-    <script src='orbit-activity.js' type='module'></script>
+    var engine;
+    engine = createDefaultEngine();
+    //To catch any errors mid game
+    /*
+    try {
+    engine = createDefaultEngine();
+    } catch(e) {
+    console.log("the available createEngine function failed. Creating the default engine instead");
+    engine = createDefaultEngine();
+    }*/
+
+        //if (!engine) throw 'engine should not be null.';
+        scene = createScene();;
+        sceneToRender = scene
+
+        engine.runRenderLoop(function () {
+            if (sceneToRender) {
+                sceneToRender.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+    <script src='transitions.js'></script>
+    <script src='main-screen.js'></script>
 </body>
 </html>
+

@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Audiowide-Reg';
+    src: url("Audiowide-Regular.ttf");
+}
+
 #canvas {
     width: 100%;
     z-index: 0;
