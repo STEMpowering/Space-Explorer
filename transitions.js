@@ -329,7 +329,7 @@ let handlers = [
         uiO.pContent.textContent = 'That shape is called a parabola, and that\'s the shape all objects make if they\'re moving and gravity is pulling with constant force on it!';
         setupButton(uiO.nextBtn, nextBtnHandler);
     },
-    (ui, nextBtnHandler) => {
+    (ui, nextBtnHandler, sceneO) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Try experimenting!';
         let p = createP('Change the angle of the cannon to see how the parabola changes!')
@@ -341,6 +341,8 @@ let handlers = [
         textIn.style.marginLeft = '1em';
         textIn.setAttribute('value', '45');
         setupButton(uiO.nextBtn, nextBtnHandler);
+
+        let cannon = sceneO.earth.cannon;
 
         // angle from last time to keep track of deltas
         let prevAngle = 45;
@@ -438,7 +440,7 @@ let handlers = [
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
-        uiO.pContent.textContent = 'This means that, when we fire this cannon, the cannon ball will be moving much faster than it was on Earth!';
+        uiO.pContent.textContent = 'This means that, when we fire this cannon, the ball will be moving much faster than it was on Earth!';
         setupButton(uiO.nextBtn, nextBtnHandler);
     },
     (ui, nextBtnHandler) => {
@@ -462,7 +464,7 @@ let handlers = [
         // create fire button
         let fireHandle = {};
         let fireBtn = createButton(ui, 'Fire!', () => { 
-            cannon.fire(5); 
+            cannon.fire(0); 
             ui.removeChild(fireBtn);
             fireBtn = createButton(ui, 'Fire!');
             fireBtn.style.color = 'red';
@@ -471,9 +473,37 @@ let handlers = [
 
             // compute orbit for this trajectory
             let ball = cannon.ball;
-            let orbitElems = keplerElems(ball.physicsImpostor.getLinearVelocity(), ball.position, BABYLON.Vector3.Zero(), 1000000000);
+            let worldMat = ball.computeWorldMatrix(true);
+            let worldBall = BABYLON.Vector3.TransformCoordinates(ball.position, worldMat);
+
+            let orbitElems = keplerElems(new BABYLON.Vector3(0.001, 0, 0), worldBall, BABYLON.Vector3.Zero(), 0.001);
             let orbitPoints = computeOrbit(BABYLON.Vector3.Zero(), orbitElems, 200);
+
+            // convert to local
+            let localMat = BABYLON.Matrix.Invert(worldMat);
+            orbitPoints.forEach((point, index) => {
+                orbitPoints[index] = BABYLON.Vector3.TransformCoordinates(point, localMat);
+            });
+
+            let orbitFunc = runOrbit(ball, BABYLON.Vector3.Zero(), orbitPoints, orbitElems, sceneO.scene);
+
+            let prevBallPos = null;
+            let ballI = 0;
+            sceneO.pathDrawer = () => {
+                if (prevBallPos) {
+                    let line = BABYLON.MeshBuilder.CreateLines('ballLine' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
+                    line.color = BABYLON.Color3.Green();
+                    sceneO.ballPath.add(line);
+                    line.parent = cannon.node;
+                }
+                prevBallPos = cannon.ball.position;
+                ballI++;
+            };
+            sceneO.scene.registerBeforeRender(sceneO.pathDrawer);
+
+
             console.log(orbitElems.eccV.length());
+            console.log(ball.position);
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';

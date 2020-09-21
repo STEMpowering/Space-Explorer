@@ -226,7 +226,7 @@ const createSpaceScene = function() {
     }
 
     // make ball move on da rails of the orbit points
-    let orbitFunc = runOrbit(ball, earth, orbitPoints, orbitElems, scene);
+    let orbitFunc = runOrbit(ball, earth.position, orbitPoints, orbitElems, scene);
 
     // cannon import
     BABYLON.SceneLoader.ImportMesh("", "cannon/", "cannon.babylon", scene, function (meshes, particles, skeletons) {          
