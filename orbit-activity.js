@@ -78,7 +78,7 @@ const createEarthScene = function() {
         ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
         cannon = cannonsSetup(scene, ground);
 
-        setupGUI();
+        //setupGUI();
     });
 
     function cannonsSetup(scene, ground) {
@@ -205,13 +205,13 @@ const createSpaceScene = function() {
 let sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), earth: {cannon, camera}, space }; // pack up required refs
 sceneO.scene = sceneO.earthScene;
 
-engine.runRenderLoop(function() {
+/*engine.runRenderLoop(function() {
     sceneO.scene.render();
 });
 
 window.addEventListener('resize', () => {
     engine.resize();
-});
+});*/
 
 // gui stuff
 function setupGUI() {

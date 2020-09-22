@@ -6,24 +6,20 @@
         <title>Babylon.js sample code</title>
 
         <!-- Babylon.js -->
-        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
-        <script src="https://preview.babylonjs.com/ammo.js"></script>
-        <script src="https://preview.babylonjs.com/cannon.js"></script>
-        <script src="https://preview.babylonjs.com/Oimo.js"></script>
-        <script src="https://preview.babylonjs.com/libktx.js"></script>
-        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
-        <script src="https://preview.babylonjs.com/babylon.js"></script>
-        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
-        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
-        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
-        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
-        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/cannon@0.6.2/build/cannon.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/babylonjs-gui@3.3.0/babylon.gui.min.js"></script>
+        <script src="https://cdn.babylonjs.com/babylon.js"></script>
+        <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src='https://cdn.babylonjs.com/cannon.js'></script>
+
+        <!-- our own dependencies -->
+        <script src='transitions.js'></script>
+        <script src='orbit-helpers.js'></script>
+        <script src='cannon.js'></script>
 
         <style>
             html, body {
@@ -46,13 +42,14 @@
         <div id='ui'></div>
         <canvas id="canvas"></canvas>
     </div>
+    <script src='orbit-activity.js'></script>
     <script>
-        var canvas = document.getElementById("canvas");
+        //var canvas = document.getElementById("canvas");
 
-        var engine = null;
+        //var engine = null;
         var scene = null;
         var sceneToRender = null;
-        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
+        //var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
 
@@ -253,8 +250,8 @@
             return scene;
         }
     
-    var engine;
-    engine = createDefaultEngine();
+    //var engine;
+    //engine = createDefaultEngine();
     //To catch any errors mid game
     /*
     try {
@@ -265,12 +262,12 @@
     }*/
 
         //if (!engine) throw 'engine should not be null.';
-        scene = createScene();;
-        sceneToRender = scene
+        sceneO.main = createScene();
+        sceneO.scene = sceneO.main;
 
         engine.runRenderLoop(function () {
-            if (sceneToRender) {
-                sceneToRender.render();
+            if (sceneO.scene) {
+                sceneO.scene.render();
             }
         });
 
@@ -279,7 +276,6 @@
             engine.resize();
         });
     </script>
-    <script src='transitions.js'></script>
     <script src='main-screen.js'></script>
 </body>
 </html>
