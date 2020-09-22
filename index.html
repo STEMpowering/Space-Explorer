@@ -1,375 +1,294 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newton's Cannon Test</title>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-    <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
-    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
-    <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
-    <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
-    <script src='https://cdn.babylonjs.com/cannon.js'></script>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <!-- own dependencies -->
-    <script src='transitions.js'></script>
-    <script src='orbit-helpers.js'></script>
-    <style>
-        #canvas {
-            width: 100%;
-            z-index: 0;
-        }
-        #ui {
-            z-index: 1;
-            position: absolute;
-            display: block;
-            margin: 1em;
-            opacity: 0.5;
-            width: 50%;
-            max-height: 100%;
-            color: yellow;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-        #fire {
-            padding: 2em;
-            background-color: #000000;
-            color: red;
-            border-radius: 0.5em;
-            display: block;
-        }
-        #ui:hover {
-            opacity: 1;
-        }
-        #angle {
-            margin-top: 1em;
-            max-width: 90%;
-        }
-        #fire:hover {
-            opacity: 1;
-            /*box-shadow: 
-            0 0 5px #ee01ff;*/
-        }
-        #angle:hover {
-            opacity: 1;
-        }
-    </style>
-</head>
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://cdn.babylonjs.com/babylon.js"></script>
+        <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src='https://cdn.babylonjs.com/cannon.js'></script>
+
+        <!-- our own dependencies -->
+        <script src='transitions.js'></script>
+        <script src='orbit-helpers.js'></script>
+        <script src='cannon.js'></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #canvas {
+                width: 100%;
+                touch-action: none;
+            }
+        </style>
+        <link rel='stylesheet' href='index.css'>
+    </head>
 <body>
     <div id='game'>
         <div id='ui'></div>
-        <canvas id='canvas'></canvas>
+        <div id='plainfo'></div>
+        <canvas id="canvas"></canvas>
     </div>
+    <script src='orbit-activity.js'></script>
     <script>
-        let canvas = document.getElementById('canvas');
-        let engine = new BABYLON.Engine(canvas, true);
+        //var canvas = document.getElementById("canvas");
 
-        const skyColor = new BABYLON.Color3(0.5, 0.5, 1);
-
-        let cannon = {};
-        let camera = {};
-
-        const createEarthScene = function() {
-            let scene = new BABYLON.Scene(engine);
-
-            // physics setup
-            let gravity = new BABYLON.Vector3(0,-10,0);
-            let physPlug = new BABYLON.CannonJSPlugin();
-            scene.enablePhysics(gravity, physPlug);
-
-            scene.clearColor = skyColor;
-
-            camera = new BABYLON.ArcRotateCamera("cramera", -Math.PI / 2,  Math.PI / 4, 100, BABYLON.Vector3.Zero(), scene);
-            camera.attachControl(canvas);
-            let light = new BABYLON.HemisphericLight('hemilite', new BABYLON.Vector3(0,50,0), scene);
-
-            // ground w/ texture test
-            let ground = BABYLON.MeshBuilder.CreateGround('ground', {width: 5000, height: 5000}, scene);
-            let terrainMat = new BABYLON.StandardMaterial('terrainMat', scene); //new BABYLON.TerrainMaterial('terrMat', scene);
-            terrainMat.diffuseTexture = new BABYLON.Texture('textures/grass.jpg', scene);
-            terrainMat.diffuseTexture.uScale = terrainMat.diffuseTexture.vScale = 1000;
-            terrainMat.specularColor = BABYLON.Color3.White();
-            ground.material = terrainMat;
-
-            // setup sky
-            let skyMat = new BABYLON.SkyMaterial('skyMaterial', scene);
-            skyMat.backFaceCulling = false;
-            skyMat.luminance = 1;
-            skyMat.turbidity = 20;
-            skyMat.inclination = 0;
-            skyMat.azimuth = 0.1;
-
-            let skybox = new BABYLON.Mesh.CreateBox('skybox', 5000, scene);
-            skybox.material = skyMat;
-
-            // represents a cannon huyhn
-            class Cannon {
-                static startAngle = 5;
-                static scale = 6;
-                static tubeParts = new Set([5, 2, 16, 13, 14, 15, 9, 1, 12]);
-
-                constructor(scene) {
-                    this.scene = scene;
-
-                    this.node = Cannon.CannonNode.clone();
-                    this.tubeNode = Cannon.TubeNode.clone();
-                    this.ball = Cannon.Ball.clone();
-
-                    // ball physics
-                    //this.ball.physicsImpostor = new BABYLON.PhysicsImpostor(this.ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-
-                    this.tubeRotV = new BABYLON.Vector3(); this.tubeRotV.copyFrom(Cannon.TubeRotV);
-                    this.tubeVec = new BABYLON.Vector3(); this.tubeVec.copyFrom(Cannon.TubeVec);
-                    this.tubeRotV.parent = this.node;
-                    this.tubeVec.parent = this.node;
-
-                    this.tubeNode.parent = this.node;
-                    this.ball.parent = this.node;
-
-                    this.node.setEnabled(true);
-                    this.ball.setEnabled(false);
-                }
-                // rotate tube by certain angle, including vector used to position tube when firing
-                rotateTube(angle) {
-                    this.tubeNode.rotate( this.tubeRotV, Math.PI / 180 * angle );
-
-                    let rotMat = BABYLON.Matrix.RotationAxis(this.tubeRotV, Math.PI / 180 * angle)
-                    this.tubeVec = BABYLON.Vector3.TransformCoordinates(this.tubeVec, rotMat);
-                }
-                translateTube(amount) {
-                    this.tubeNode.translate( this.tubeVec, amount / 6 * Cannon.scale, BABYLON.Space.WORLD);
-                }
-
-                // fire cannon
-                fire(speed) {
-                    const frameRate = 5;
-                    let keyframes = [];
-                    keyframes.push({
-                        frame: 0,
-                        value: new BABYLON.Vector3(0,0,0)
-                    });
-                    keyframes.push({
-                        frame: 0.1 * frameRate,
-                        value: this.tubeVec.multiplyByFloats(-1,-1,-1)
-                    });
-
-                    keyframes.push({
-                        frame: 1 * frameRate,
-                        value: new BABYLON.Vector3(0,0,0)
-                    });
-                    let anim = new BABYLON.Animation("fireCannon", "position", frameRate, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-                    anim.setKeys(keyframes);
-
-                    this.scene.beginDirectAnimation(this.tubeNode, [anim], 0, 1 * frameRate, true);
-
-                    // fire the ball
-                    // first correct its position into cannon coordinates
-                    this.ball.parent = this.node;
-
-                    this.ball.position = this.tubeVec.multiplyByFloats(1.75,1.75,1.75);
-
-                    let ballVelocity = this.tubeVec.multiplyByFloats(speed, speed, speed);
-                    this.ball.physicsImpostor.setLinearVelocity(ballVelocity);
-
-                    this.ball.setEnabled(true);
-
-                    // now correct ball back into world coordinates
-                    let worldMat = this.ball.computeWorldMatrix(true);
-                    this.ball.parent = null;
-                    let scale = 5;
-                    this.ball.scaling = new BABYLON.Vector3(scale, scale, scale);
-                    this.ball.position = BABYLON.Vector3.TransformCoordinates(this.ball.position, worldMat);
-
-                    return anim;
-                }
-            }
-
-            // import mesh demo
-            BABYLON.SceneLoader.ImportMesh("", "cannon/", "cannon.babylon", scene, function (meshes, particles, skeletons) {          
-                // indices of cannon barrel parts
-                let tubeParts = Cannon.tubeParts;
-                let tubeVec = new BABYLON.Vector3(-1,0,0);
-                let tubeRotV = new BABYLON.Vector3(0,0,-1);
-
-                // create a node which pre much represents the cannon
-                let cannonNode = new BABYLON.TransformNode('cannNode');
-                let tubeNode = new BABYLON.TransformNode('tubeNode');
-                meshes.forEach((mesh, index) => {
-                    mesh.parent = cannonNode;
-                    if (tubeParts.has(index)) { // assign tube node as parent to any tube part
-                        mesh.parent = tubeNode;
-                    }
-                });
-                cannonNode.scaling = new BABYLON.Vector3(Cannon.scale, Cannon.scale, Cannon.scale);
-                // rotate tube to be level with vector
-                tubeNode.rotate( tubeRotV, -Math.PI / 180 * Cannon.startAngle );
-
-                // hide or show
-                cannonNode.setEnabled(false);
-                tubeNode.setEnabled(false);
-                Cannon.Meshes = meshes;
-                Cannon.CannonNode = cannonNode;
-                Cannon.TubeNode = tubeNode;
-                Cannon.TubeVec = tubeVec;
-                Cannon.TubeRotV = tubeRotV;
-
-                Cannon.Ball = meshes[3];
-                // detach ball parent
-                Cannon.Ball.parent = null;
-
-                // give the ball physics
-                Cannon.Ball.physicsImpostor = new BABYLON.PhysicsImpostor(Cannon.Ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-                
-                ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-                cannon = cannonsSetup(scene, ground);
-
-                setupGUI();
-            });
-
-            function cannonsSetup(scene, ground) {
-                // create some cannons yaa
-                let cannon = new Cannon(scene);
-                cannon.node.position.y += 20;
-                //cannon.rotateTube(-30);
-
-                //cannon.fire();
-
-                return cannon;
-            }
-
-            return scene;
-        };
-
-        // creating space scene
-        const createSpaceScene = function() {
-            let scene = new BABYLON.Scene(engine);
-
+        //var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        //var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
             scene.clearColor = BABYLON.Color3.Black();
 
-            let spaceCam = new BABYLON.ArcRotateCamera("spaceCam", -Math.PI / 2,  Math.PI / 4, 320, BABYLON.Vector3.Zero(), scene);
-            spaceCam.attachControl(canvas);
-            //let light = new BABYLON.HemisphericLight('hemilite', new BABYLON.Vector3(0,50,0), scene);
-
             let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 5000 }, scene);
+            let axis = new BABYLON.Vector3(0,0,1);
+            skydome.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(axis, Math.PI / 2);
 
             let spacemat = new BABYLON.StandardMaterial('spacemat', scene);
             spacemat.emissiveTexture = new BABYLON.Texture('textures/space-dome.jpg', scene);
             spacemat.backFaceCulling = false;
             skydome.material = spacemat;
-
-            // physics setup
-            let gravity = new BABYLON.Vector3(0,0,0);
-            let physPlug = new BABYLON.CannonJSPlugin();
-            scene.enablePhysics(gravity, physPlug);
-
-            // test ball
-            let ball = new BABYLON.MeshBuilder.CreateSphere('testball', {diameter: 10}, scene);
-            ball.position.y = 40;
-            ball.physicsImpostor = new BABYLON.PhysicsImpostor(ball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+        
+            // Setup camera
+            var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 0, BABYLON.Vector3.Zero(), scene);
+            sceneO.mainCamera = camera;
+            camera.setPosition(new BABYLON.Vector3(0, 1000, -1000));
+            camera.attachControl(canvas, true);
+        
+            // sun sphere - size decreased by 20x
+            var sun = BABYLON.MeshBuilder.CreateSphere("Sun", {diameter: 69.635, diameterX: 69.635}, scene);
+            sceneO.sun = sun;
+        	sun.position = new BABYLON.Vector3(0, 0, 0);
+            var material = new BABYLON.StandardMaterial("sunmaterial", scene);
+            sun.material = material;
+            sun.material.emissiveColor = new BABYLON.Color3(1, 1, 0);
+        
+            // sun light
+            var light0 = new BABYLON.PointLight("Omni0", sun.position, scene);
+            light0.diffuse = new BABYLON.Color3(1, 1, 1);
+        	
+        
+        	var ref = BABYLON.Mesh.CreateGround("gnd", 40, 40, 16, scene);
+        	ref.material = new BABYLON.StandardMaterial("texture1", scene);
+        	ref.material.wireframe = true;
+        
+        	// earth
+            var earth = BABYLON.MeshBuilder.CreateSphere("Earth", {diameter: 12.7, diameterX: 12.7}, scene);
+        	earth.position.x = 4;
+            earth.parent = sun;
+            earth.info = 'Earth is the fifth largest planet of our solar system and has one moon. Being another rocky and terrestrial planet, it has a solid and active surface with mountains, valleys, plains and many more. It is the only planet where water is liquid, covering about 70% of the surface.The other planets are too hot or too cold for an ideal lifestyle for us humans.';
             
-            // create earth
-            let earth = new BABYLON.MeshBuilder.CreateSphere('earth', { diameter: 50 }, scene);
-            let earthmat = new BABYLON.StandardMaterial('earthmat', scene);
-            earthmat.emissiveTexture = new BABYLON.Texture('textures/earth.jpg', scene);
-            earthmat.backFaceCulling = false;
-            earth.material = earthmat;
-            // rotate earth so that it aint upside down
-            let axis = new BABYLON.Vector3(1,0,0);
-            earth.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(axis, Math.PI);
+        	var earthMaterial = new BABYLON.StandardMaterial("earthSurface", scene);
+            earthMaterial.diffuseTexture = new BABYLON.Texture("textures/earth.jpg", scene);
+        	earth.material = earthMaterial
+            earth.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            earth.material.specularColor = new BABYLON.Color3(0, 0, 0);
+            
+        	// moon
+            var moon = BABYLON.MeshBuilder.CreateSphere("Moon", {diameter: 3.4, diameterX: 3.4}, scene);
+        	//moon.translate(earth.position, 5, BABYLON.Space.WORLD);
+        	moon.position.x = 50;
+        	moon.bakeCurrentTransformIntoVertices();
+        	moon.position.x = 0;
+        	//moon.parent = earth;
+            
+            // mars
+            var mars = BABYLON.MeshBuilder.CreateSphere("Mars", {diameter: 6.779, diameterX: 6.779}, scene);
+        	mars.position.x = 4;
+            mars.parent = sun;
+            mars.info = 'Mars, the next possible candidate for a future human habitation, is Earth’s closest space neighbour. Mars also has the highest mountain in the solar system named Olympus Mons, three times the size of Mount Everest. Unlike Earth, Mars has two moons, Phobos and Deimos. At this very second, there are two rovers on the surface of Mars and six spacecraft orbiting Mars, helping with the discovery of water and other evidence of biological life on that planet.';
+            
+            var marsMaterial = new BABYLON.StandardMaterial("marsSurface", scene);
+            marsMaterial.diffuseTexture = new BABYLON.Texture("textures/mars.jpg", scene);
+        	mars.material = marsMaterial
+            mars.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            mars.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
-            earth.physicsImpostor = new BABYLON.PhysicsImpostor(earth, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0, restitution: 0.9 }, scene);
+            // mercury
+            var mercury = BABYLON.MeshBuilder.CreateSphere("Mercury", {diameter: 4.8794, diameterX: 4.8794}, scene);
+        	mercury.position.x = 4;
+            mercury.parent = sun;
+            mercury.info = 'Mercury is the smallest and closest planet to the sun in our solar system being a little bigger than Earth’s moon. It is so small that it is as wide as the Atlantic Ocean and 18 of them would fit into the Earth. Mercury likes to keep things simple, it has a solid surface with no atmosphere and it doesn’t have any moons. This planet spins around slowly compared to Earth, so one day lasts a long time. Mercury takes 59 Earth days to make one full rotation on its axis, however, it speeds through space with 50km per second/31 miles per second. A year on Mercury goes by fast as it is the closest planet to the sun, completing one revolution around the sun in just 88 Earth days.';
+        
+        	var mercuryMaterial = new BABYLON.StandardMaterial("mercurySurface", scene);
+            mercuryMaterial.diffuseTexture = new BABYLON.Texture("textures/mercury.jpg", scene);
+        	mercury.material = mercuryMaterial
+            mercury.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            mercury.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
-            // calculate keplerian orbit
-            let center = earth.position;
+            //Venus
+            var venus = BABYLON.MeshBuilder.CreateSphere("Venus", {diameter: 12.1, diameterX: 12.1}, scene);
+        	venus.position.x = 4;
+            venus.parent = sun;
+            venus.info = 'Venus is the next planet from the Sun after Mercury. Just like Mercury, it is a rocky planet with an atmosphere (air) around it, but it is a lot thicker than Earth’s, filled with carbon dioxide and clouds made of sulfuric acid. Given that Venus is not the closest to the sun, it is the hottest planet and has an average temperature of 460°C. It is about the same size as Earth, however a day in Venus takes 243 earth days and It takes 225 earth days to travel around the Sun. So interestingly, a single day would take longer than a year in Venus.';
+        
+        	var venusMaterial = new BABYLON.StandardMaterial("venusSurface", scene);
+            venusMaterial.diffuseTexture = new BABYLON.Texture("textures/venus.jpg", scene);
+        	venus.material = venusMaterial
+            venus.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            venus.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
-            let orbitElems = keplerElems(new BABYLON.Vector3(190, 0, 0), ball.position, center, 1000000);
-            let orbitPoints = computeOrbit(center, orbitElems, 200);
+            //Venus
+            var jupiter = BABYLON.MeshBuilder.CreateSphere("Jupiter", {diameter: 139.82, diameterX: 139.82}, scene);
+        	jupiter.position.x = 4;
+            jupiter.parent = sun;
+        
+        	var jupiterMaterial = new BABYLON.StandardMaterial("jupiterSurface", scene);
+            jupiterMaterial.diffuseTexture = new BABYLON.Texture("textures/jupiter.jpg", scene);
+        	jupiter.material = jupiterMaterial
+            jupiter.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            jupiter.material.specularColor = new BABYLON.Color3(0, 0, 0);
+            jupiter.info = 'Jupiter is the first planet past the asteroid belt and the largest planet in the solar system. Its biggest feature is the “Great Red Spot”, a very large storm ongoing for about 350 years. It is so big that you could fit around 1321 Earths inside Jupiter and it has 66 moons, one of them being bigger than the planet Mercury. As it is big and far away from the sun, it takes around 12 earth years for the planet to revolve around the sun once. Some people even consider it a failed star since it is similar to the sun as it has swirling gases and liquids such as 90% hydrogen and 10% helium.';
 
-            for (let i = 0; i < orbitPoints.length - 1; i++) {
-                let line = BABYLON.MeshBuilder.CreateLines('orbit', {points: [orbitPoints[i], orbitPoints[i+1]]}, scene);
-                line.color = BABYLON.Color3.Green();
-            }
+            //Saturn
+            var saturn = BABYLON.MeshBuilder.CreateSphere("Saturn", {diameter: 116.46, diameterX: 116.46}, scene);
+        	saturn.position.x = 4;
+            saturn.parent = sun;
+            saturn.info = 'We know Saturn for its large and beautiful rings made of groups/chunks of ice and rock. Like Jupiter, it is mostly a ball of hydrogen and helium. It was first discovered with the telescope in 1610 by Galileo. People also refer to it as one of the ‘gas giants’ like Jupiter and takes 29.5 Earth years to travel around the sun. But for the most part, it is still not fully discovered like the other planets in our solar system.';        
 
-            // make ball move on da rails of the orbit points
-            let currentPoint = 0;
-            let nextPoint = 1;
+        	var saturnMaterial = new BABYLON.StandardMaterial("saturnSurface", scene);
+            saturnMaterial.diffuseTexture = new BABYLON.Texture("textures/saturn.jpg", scene);
+        	saturn.material = saturnMaterial
+            saturn.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            saturn.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
-            let delta = 0;
-            scene.registerBeforeRender(() => {
-                let deltaT = scene.getEngine().getDeltaTime();
+            //Uranus
+            var uranus = BABYLON.MeshBuilder.CreateSphere("Uranus", {diameter: 49.244, diameterX: 49.244}, scene);
+        	uranus.position.x = 4;
+            uranus.parent = sun;
+            uranus.info = 'Uranus is the second farthest planet and is the coldest planet in the solar system with an average temperature of -220°C and it also rolls instead of rotates to create days. Due to all this weird movement, it has 20 year long seasons, summer and winter each take 21 years at the north and south poles. On top of all those weird facts, Uranus appears blue because of its gases. It is another ‘gas giant’ and it is relatively large as it can fit 63 Earths inside of it, but not nearly as big as both Jupiter and Saturn. Uranus is big and far from the sun, and because of that, it takes 84 years to orbit the Sun.';
+        
+        	var uranusMaterial = new BABYLON.StandardMaterial("uranusSurface", scene);
+            uranusMaterial.diffuseTexture = new BABYLON.Texture("textures/uranus.jpg", scene);
+        	uranus.material = uranusMaterial
+            uranus.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            uranus.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
-                let p1 = orbitPoints[currentPoint];
-                let p2 = orbitPoints[nextPoint];
+            //Neptune
+            var neptune = BABYLON.MeshBuilder.CreateSphere("Neptune", {diameter: 50.724, diameterX: 50.724}, scene);
+        	neptune.position.x = 4;
+            neptune.parent = sun;
+            neptune.info = 'Neptune is the farthest planet from the Sun and takes 165 years to orbit around the sun. It is the last and smallest of the four ‘gas giants’, being able to fit 58 earths. It is composed of the same gases that make up Uranus with a thick fog of water, ammonia and methane and its winds are nine times stronger than Earth’s could ever be.';
+        
+        	var neptuneMaterial = new BABYLON.StandardMaterial("neptuneSurface", scene);
+            neptuneMaterial.diffuseTexture = new BABYLON.Texture("textures/neptune.jpg", scene);
+        	neptune.material = neptuneMaterial
+            neptune.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            neptune.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
-                // interpolation vectors
-                let deltaR = p2.subtract(p1);
-                let rn = BABYLON.Vector3.Normalize(deltaR);
-                let r = deltaR.length();
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-                // compute speed
-                let distV = ball.position.subtract(earth.position);
-                let dist = distV.length();
-                let speed = computeSpeed(orbitElems.E0, 1000000, dist);
-                speed *= .0008;
+            //advancedTexture
+            var UiPanel02 = new BABYLON.GUI.StackPanel("horizontal");
+            UiPanel02.isVertical = false;
+            UiPanel02.top = "30%";
+            UiPanel02.width = "360px";
+            UiPanel02.height = "160px";
+            UiPanel02.fontSize = "14px";
+            UiPanel02.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            UiPanel02.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            advancedTexture.addControl(UiPanel02);
 
-                delta += speed * deltaT;
+            // Animations
+            var alpha = Math.PI;
+            var mars_alpha = Math.PI;
+            var mercury_alpha = Math.PI;
+            var venus_alpha = Math.PI;
+            var jupiter_alpha = Math.PI;
+            var saturn_alpha = Math.PI;
+            var uranus_alpha = Math.PI;
+            var neptune_alpha = Math.PI;
 
-                while (delta > r) {
-                    delta -= r;
+            scene.beforeRender = function () {
+        		earth.position = new BABYLON.Vector3(200 * Math.sin(alpha), earth.parent.position.y, 200 * Math.cos(alpha));
+        		earth.rotation.y += .003;
+        
+        		moon.position = earth.position;
+        		moon.rotation.y -= .1;
+        		
+                mars.position = new BABYLON.Vector3(300 * Math.sin(mars_alpha), mars.parent.position.y, 300 * Math.cos(mars_alpha));
+        		mars.rotation.y += .002;
+                
+                mercury.position = new BABYLON.Vector3(-75 * Math.sin(mercury_alpha), mercury.parent.position.y, -75 * Math.cos(mercury_alpha));
+        		mercury.rotation.y += .0067;
 
-                    currentPoint++;
-                    nextPoint++;
-                    if (nextPoint >= orbitPoints.length) {
-                        nextPoint = 0;
-                    }
-                    if (currentPoint >= orbitPoints.length) {
-                        currentPoint = 0;
-                    }
+                venus.position = new BABYLON.Vector3(-125* Math.sin(venus_alpha), venus.parent.position.y, -125 * Math.cos(venus_alpha));
+        		venus.rotation.y += .0067;
 
-                    p1 = orbitPoints[currentPoint];
-                    p2 = orbitPoints[nextPoint];
+                jupiter.position = new BABYLON.Vector3(-450* Math.sin(jupiter_alpha), jupiter.parent.position.y, -450 * Math.cos(jupiter_alpha));
+        		jupiter.rotation.y += .0067;
 
-                    deltaR = p2.subtract(p1);
-                    rn = BABYLON.Vector3.Normalize(deltaR);
-                    r = deltaR.length();
-                }
-                let position = rn.multiplyByFloats(delta, delta, delta);
-                position = position.add(p1);
-                ball.position = position;
-            });
+                saturn.position = new BABYLON.Vector3(650* Math.sin(saturn_alpha), saturn.parent.position.y, 650 * Math.cos(saturn_alpha));
+        		saturn.rotation.y -= .0067;
 
+                uranus.position = new BABYLON.Vector3(-750* Math.sin(uranus_alpha), uranus.parent.position.y, -750 * Math.cos(uranus_alpha));
+        		uranus.rotation.y -= .0067;
+
+                neptune.position = new BABYLON.Vector3(-850* Math.sin(neptune_alpha), neptune.parent.position.y, -850 * Math.cos(neptune_alpha));
+        		neptune.rotation.y -= .0067;
+
+        		// moon.position = new BABYLON.Vector3(5 * Math.sin(alpha-.8), moon.parent.position.y, 5 * Math.cos(alpha-.8));
+        				
+        		alpha += 0.005;
+                mars_alpha += 0.0025;
+                mercury_alpha += 0.05;
+                venus_alpha += 0.017;
+                jupiter_alpha += 0.0004;
+        		saturn_alpha += 0.00017;	
+                uranus_alpha += 0.0000595;
+                neptune_alpha += 0.0000303;
+
+        		// spin
+        //		earth.rotate(BABYLON.Axis.Y, 0.05, BABYLON.Space.WORLD);
+        //		earth.rotate(BABYLON.Axis.Y, 0.05, BABYLON.Space.LOCAL);
+        //		moon.rotate(BABYLON.Axis.Y, -0.05, BABYLON.Space.LOCAL);
+            };
+        
             return scene;
         }
-        
-        let sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), cannon, camera }; // pack up required refs
-        sceneO.scene = sceneO.earthScene;
+    
+    //var engine;
+    //engine = createDefaultEngine();
+    //To catch any errors mid game
+    /*
+    try {
+    engine = createDefaultEngine();
+    } catch(e) {
+    console.log("the available createEngine function failed. Creating the default engine instead");
+    engine = createDefaultEngine();
+    }*/
 
-        engine.runRenderLoop(function() {
-            sceneO.scene.render();
+        //if (!engine) throw 'engine should not be null.';
+        sceneO.main = createScene();
+        sceneO.scene = sceneO.main;
+
+        engine.runRenderLoop(function () {
+            if (sceneO.scene) {
+                sceneO.scene.render();
+            }
         });
 
-        window.addEventListener('resize', () => {
+        // Resize
+        window.addEventListener("resize", function () {
             engine.resize();
         });
-
-        // gui stuff
-        function setupGUI() {
-            sceneO.cannon = cannon;
-            sceneO.camera = camera;
-
-            let ui = document.getElementById('ui');
-
-            // shit for gui change
-            let handI = 0;
-            function nextBtnHandler() { // next button response handle, change shit on screen
-                removeElems(ui);
-                handI++;
-                handlers[handI](ui, nextBtnHandler, sceneO);
-            }
-            handlers[handI](ui, nextBtnHandler, sceneO);
-        }
     </script>
+    <script src='main-screen.js'></script>
 </body>
 </html>
+
