@@ -1,6 +1,15 @@
 let ui = document.getElementById('ui');
 let plainfo = document.getElementById('plainfo');
 
+function computeLinePoints() {
+    sceneO.linePoints = [];
+    let w = sceneO.scene.getEngine().getRenderWidth();
+    let h = sceneO.scene.getEngine().getRenderWidth();
+    sceneO.linePoints.push(new BABYLON.Vector2(w * 0.52, h * 0.22));
+    sceneO.linePoints.push(new BABYLON.Vector2(w * 0.64, h * 0.08));
+}
+//computeLinePoints();
+
 canvas.addEventListener('click', () => {
     let pickRes = sceneO.scene.pick(sceneO.scene.pointerX, sceneO.scene.pointerY);
     if (pickRes.pickedMesh.info) {
@@ -38,8 +47,23 @@ function showPlanetInfo(name, info) {
     let backbtn = createButton(plainfo,'Back to the sun!', () => {
             removeElems(plainfo);
             sceneO.mainCamera.setTarget(sceneO.sun);
+            sceneO.pntLine.dispose();
         });
     backbtn.style.float = 'right';
+
+    // drawing lines
+    //if (sceneO.pntLine)
+        //sceneO.pntLine.dispose();
+
+    /*let line = new BABYLON.GUI.Line();
+    line.x1 = sceneO.linePoints[0].x;
+    line.y1 = sceneO.linePoints[0].y;
+    line.x2 = sceneO.linePoints[1].x;
+    line.y2 = sceneO.linePoints[1].y;
+    line.lineWidth = 2;
+    line.color = "white";
+    sceneO.advTex.addControl(line);
+    sceneO.pntLine = line;*/
 }
 
 // setup main ui
