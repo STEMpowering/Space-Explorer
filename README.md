@@ -5,4 +5,4 @@ As for orbits, this game guides you through a thought experiment by Newton about
 The game was made using Javascript, HTML, CSS, and the BabylonJS game engine.
 
 Made by STEMPOWERING
-<img src='stempowering.png'>
+<img src='stempowering.png' style='display: block'>
