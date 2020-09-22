@@ -1,4 +1,38 @@
 let ui = document.getElementById('ui');
+let plainfo = document.getElementById('plainfo');
+
+canvas.addEventListener('click', () => {
+    let pickRes = sceneO.scene.pick(sceneO.scene.pointerX, sceneO.scene.pointerY);
+    removeElems(plainfo);
+    if (pickRes.pickedMesh.info) {
+        showPlanetInfo(pickRes.pickedMesh.name, pickRes.pickedMesh.info);
+    }
+});
+
+function showPlanetInfo(name, info) {
+    let plO = setupBasicUI(plainfo);
+    plainfo.style.position = 'absolute';
+    plainfo.style.right = 0;
+    plO.logo.style.display = 'none';
+    plO.nextBtn.style.display = 'none';
+    plO.p.style.display = 'none';
+
+    let title = document.createElement('H1');
+    let titcnt = document.createTextNode(name);
+    title.style.fontFamily = 'Audiowide-Reg';
+    title.style.padding = '0.5em';
+    title.style.textAlign = 'center';
+    title.style.marginBottom = 0;
+    title.appendChild(titcnt);
+    plO.plate.appendChild(title);
+
+    let descrip = createP(info);
+    descrip.p.style.textAlign = 'center';
+    descrip.p.style.padding = '1em';
+    plO.plate.appendChild(descrip.p);
+
+    plainfo.style.width = '35%';
+}
 
 // setup main ui
 function setupMainUI() {

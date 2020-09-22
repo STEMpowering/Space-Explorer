@@ -45,7 +45,7 @@ function setupBasicUI(ui) {
     nextBtn.style.float = 'right'; 
 
     // return objects to manipulate basic ui
-    return { plate, pContent, nextBtn, p };
+    return { plate, pContent, nextBtn, p, logo };
 }
 
 // setup helper for buttons

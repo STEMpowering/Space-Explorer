@@ -40,6 +40,7 @@
 <body>
     <div id='game'>
         <div id='ui'></div>
+        <div id='plainfo'></div>
         <canvas id="canvas"></canvas>
     </div>
     <script src='orbit-activity.js'></script>
@@ -52,6 +53,7 @@
         //var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
+            scene.clearColor = BABYLON.Color3.Black();
 
             let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 5000 }, scene);
             let axis = new BABYLON.Vector3(0,0,1);
@@ -68,7 +70,7 @@
             camera.attachControl(canvas, true);
         
             // sun sphere - size decreased by 20x
-            var sun = BABYLON.MeshBuilder.CreateSphere("sun", {diameter: 69.635, diameterX: 69.635}, scene);
+            var sun = BABYLON.MeshBuilder.CreateSphere("Sun", {diameter: 69.635, diameterX: 69.635}, scene);
         	sun.position = new BABYLON.Vector3(0, 0, 0);
             var material = new BABYLON.StandardMaterial("sunmaterial", scene);
             sun.material = material;
@@ -84,9 +86,10 @@
         	ref.material.wireframe = true;
         
         	// earth
-            var earth = BABYLON.MeshBuilder.CreateSphere("earth", {diameter: 12.7, diameterX: 12.7}, scene);
+            var earth = BABYLON.MeshBuilder.CreateSphere("Earth", {diameter: 12.7, diameterX: 12.7}, scene);
         	earth.position.x = 4;
-        	earth.parent = sun;
+            earth.parent = sun;
+            earth.info = 'Earth is the fifth largest planet of our solar system and has one moon. Being another rocky and terrestrial planet, it has a solid and active surface with mountains, valleys, plains and many more. It is the only planet where water is liquid, covering about 70% of the surface.The other planets are too hot or too cold for an ideal lifestyle for us humans.';
             
         	var earthMaterial = new BABYLON.StandardMaterial("earthSurface", scene);
             earthMaterial.diffuseTexture = new BABYLON.Texture("textures/earth.jpg", scene);
@@ -95,7 +98,7 @@
             earth.material.specularColor = new BABYLON.Color3(0, 0, 0);
             
         	// moon
-            var moon = BABYLON.MeshBuilder.CreateSphere("moon", {diameter: 3.4, diameterX: 3.4}, scene);
+            var moon = BABYLON.MeshBuilder.CreateSphere("Moon", {diameter: 3.4, diameterX: 3.4}, scene);
         	//moon.translate(earth.position, 5, BABYLON.Space.WORLD);
         	moon.position.x = 50;
         	moon.bakeCurrentTransformIntoVertices();
@@ -103,9 +106,10 @@
         	//moon.parent = earth;
             
             // mars
-            var mars = BABYLON.MeshBuilder.CreateSphere("mars", {diameter: 6.779, diameterX: 6.779}, scene);
+            var mars = BABYLON.MeshBuilder.CreateSphere("Mars", {diameter: 6.779, diameterX: 6.779}, scene);
         	mars.position.x = 4;
-        	mars.parent = sun;
+            mars.parent = sun;
+            mars.info = 'Mars, the next possible candidate for a future human habitation, is Earth’s closest space neighbour. Mars also has the highest mountain in the solar system named Olympus Mons, three times the size of Mount Everest. Unlike Earth, Mars has two moons, Phobos and Deimos. At this very second, there are two rovers on the surface of Mars and six spacecraft orbiting Mars, helping with the discovery of water and other evidence of biological life on that planet.';
             
             var marsMaterial = new BABYLON.StandardMaterial("marsSurface", scene);
             marsMaterial.diffuseTexture = new BABYLON.Texture("textures/mars.jpg", scene);
@@ -114,9 +118,10 @@
             mars.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
             // mercury
-            var mercury = BABYLON.MeshBuilder.CreateSphere("mercury", {diameter: 4.8794, diameterX: 4.8794}, scene);
+            var mercury = BABYLON.MeshBuilder.CreateSphere("Mercury", {diameter: 4.8794, diameterX: 4.8794}, scene);
         	mercury.position.x = 4;
-        	mercury.parent = sun;
+            mercury.parent = sun;
+            mercury.info = 'Mercury is the smallest and closest planet to the sun in our solar system being a little bigger than Earth’s moon. It is so small that it is as wide as the Atlantic Ocean and 18 of them would fit into the Earth. Mercury likes to keep things simple, it has a solid surface with no atmosphere and it doesn’t have any moons. This planet spins around slowly compared to Earth, so one day lasts a long time. Mercury takes 59 Earth days to make one full rotation on its axis, however, it speeds through space with 50km per second/31 miles per second. A year on Mercury goes by fast as it is the closest planet to the sun, completing one revolution around the sun in just 88 Earth days.';
         
         	var mercuryMaterial = new BABYLON.StandardMaterial("mercurySurface", scene);
             mercuryMaterial.diffuseTexture = new BABYLON.Texture("textures/mercury.jpg", scene);
@@ -125,9 +130,10 @@
             mercury.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
             //Venus
-            var venus = BABYLON.MeshBuilder.CreateSphere("venus", {diameter: 12.1, diameterX: 12.1}, scene);
+            var venus = BABYLON.MeshBuilder.CreateSphere("Venus", {diameter: 12.1, diameterX: 12.1}, scene);
         	venus.position.x = 4;
-        	venus.parent = sun;
+            venus.parent = sun;
+            venus.info = 'Venus is the next planet from the Sun after Mercury. Just like Mercury, it is a rocky planet with an atmosphere (air) around it, but it is a lot thicker than Earth’s, filled with carbon dioxide and clouds made of sulfuric acid. Given that Venus is not the closest to the sun, it is the hottest planet and has an average temperature of 460°C. It is about the same size as Earth, however a day in Venus takes 243 earth days and It takes 225 earth days to travel around the Sun. So interestingly, a single day would take longer than a year in Venus.';
         
         	var venusMaterial = new BABYLON.StandardMaterial("venusSurface", scene);
             venusMaterial.diffuseTexture = new BABYLON.Texture("textures/venus.jpg", scene);
@@ -136,21 +142,23 @@
             venus.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
             //Venus
-            var jupiter = BABYLON.MeshBuilder.CreateSphere("jupiter", {diameter: 139.82, diameterX: 139.82}, scene);
+            var jupiter = BABYLON.MeshBuilder.CreateSphere("Jupiter", {diameter: 139.82, diameterX: 139.82}, scene);
         	jupiter.position.x = 4;
-        	jupiter.parent = sun;
+            jupiter.parent = sun;
         
         	var jupiterMaterial = new BABYLON.StandardMaterial("jupiterSurface", scene);
             jupiterMaterial.diffuseTexture = new BABYLON.Texture("textures/jupiter.jpg", scene);
         	jupiter.material = jupiterMaterial
             jupiter.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
             jupiter.material.specularColor = new BABYLON.Color3(0, 0, 0);
+            jupiter.info = 'Jupiter is the first planet past the asteroid belt and the largest planet in the solar system. Its biggest feature is the “Great Red Spot”, a very large storm ongoing for about 350 years. It is so big that you could fit around 1321 Earths inside Jupiter and it has 66 moons, one of them being bigger than the planet Mercury. As it is big and far away from the sun, it takes around 12 earth years for the planet to revolve around the sun once. Some people even consider it a failed star since it is similar to the sun as it has swirling gases and liquids such as 90% hydrogen and 10% helium.';
 
             //Saturn
-            var saturn = BABYLON.MeshBuilder.CreateSphere("saturn", {diameter: 116.46, diameterX: 116.46}, scene);
+            var saturn = BABYLON.MeshBuilder.CreateSphere("Saturn", {diameter: 116.46, diameterX: 116.46}, scene);
         	saturn.position.x = 4;
-        	saturn.parent = sun;
-        
+            saturn.parent = sun;
+            saturn.info = 'We know Saturn for its large and beautiful rings made of groups/chunks of ice and rock. Like Jupiter, it is mostly a ball of hydrogen and helium. It was first discovered with the telescope in 1610 by Galileo. People also refer to it as one of the ‘gas giants’ like Jupiter and takes 29.5 Earth years to travel around the sun. But for the most part, it is still not fully discovered like the other planets in our solar system.';        
+
         	var saturnMaterial = new BABYLON.StandardMaterial("saturnSurface", scene);
             saturnMaterial.diffuseTexture = new BABYLON.Texture("textures/saturn.jpg", scene);
         	saturn.material = saturnMaterial
@@ -158,9 +166,10 @@
             saturn.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
             //Uranus
-            var uranus = BABYLON.MeshBuilder.CreateSphere("uranus", {diameter: 49.244, diameterX: 49.244}, scene);
+            var uranus = BABYLON.MeshBuilder.CreateSphere("Uranus", {diameter: 49.244, diameterX: 49.244}, scene);
         	uranus.position.x = 4;
-        	uranus.parent = sun;
+            uranus.parent = sun;
+            uranus.info = 'Uranus is the second farthest planet and is the coldest planet in the solar system with an average temperature of -220°C and it also rolls instead of rotates to create days. Due to all this weird movement, it has 20 year long seasons, summer and winter each take 21 years at the north and south poles. On top of all those weird facts, Uranus appears blue because of its gases. It is another ‘gas giant’ and it is relatively large as it can fit 63 Earths inside of it, but not nearly as big as both Jupiter and Saturn. Uranus is big and far from the sun, and because of that, it takes 84 years to orbit the Sun.';
         
         	var uranusMaterial = new BABYLON.StandardMaterial("uranusSurface", scene);
             uranusMaterial.diffuseTexture = new BABYLON.Texture("textures/uranus.jpg", scene);
@@ -169,9 +178,10 @@
             uranus.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
             //Neptune
-            var neptune = BABYLON.MeshBuilder.CreateSphere("neptune", {diameter: 50.724, diameterX: 50.724}, scene);
+            var neptune = BABYLON.MeshBuilder.CreateSphere("Neptune", {diameter: 50.724, diameterX: 50.724}, scene);
         	neptune.position.x = 4;
-        	neptune.parent = sun;
+            neptune.parent = sun;
+            neptune.info = 'Neptune is the farthest planet from the Sun and takes 165 years to orbit around the sun. It is the last and smallest of the four ‘gas giants’, being able to fit 58 earths. It is composed of the same gases that make up Uranus with a thick fog of water, ammonia and methane and its winds are nine times stronger than Earth’s could ever be.';
         
         	var neptuneMaterial = new BABYLON.StandardMaterial("neptuneSurface", scene);
             neptuneMaterial.diffuseTexture = new BABYLON.Texture("textures/neptune.jpg", scene);
