@@ -856,6 +856,7 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Mess around as you please! :D';
         setupButton(uiO.nextBtn, nextBtnHandler);
+
         uiO.nextBtn.style.display = 'none';
 
         let d = createP('Change the power of the cannon!')
@@ -932,5 +933,15 @@ let handlers = [
 
         ui.style.width = '25%';
         uiO.p.style.padding = '3em';
+
+        // insert button to return to main screen
+        let retbtn = createButton(ui, 'Return to Main', () =>{
+                sceneO.scene = sceneO.main;
+                removeElems(ui);
+                setupMainUI();
+            });
+        retbtn.style.margin = '1em';
+        retbtn.style.marginLeft = '8em';
+        ui.appendChild(retbtn);
     }
 ];
