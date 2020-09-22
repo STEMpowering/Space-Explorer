@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <title>Babylon.js sample code</title>
+        <title>Space Explorer</title>
 
         <!-- Babylon.js -->
         <script src="https://cdn.babylonjs.com/babylon.js"></script>
@@ -55,7 +55,7 @@
             var scene = new BABYLON.Scene(engine);
             scene.clearColor = BABYLON.Color3.Black();
 
-            let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 5000 }, scene);
+            let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 10000 }, scene);
             let axis = new BABYLON.Vector3(0,0,1);
             skydome.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(axis, Math.PI / 2);
 
@@ -191,18 +191,20 @@
             neptune.material.diffuseColor = new BABYLON.Color3(1, 1, 1);
             neptune.material.specularColor = new BABYLON.Color3(0, 0, 0);
 
-            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+            let advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+            advancedTexture.isForeground = true;
+            sceneO.advTex = advancedTexture;
 
             //advancedTexture
-            var UiPanel02 = new BABYLON.GUI.StackPanel("horizontal");
+            /*var UiPanel02 = new BABYLON.GUI.StackPanel("horizontal");
             UiPanel02.isVertical = false;
-            UiPanel02.top = "30%";
+            UiPanel02.top = "30%";f
             UiPanel02.width = "360px";
             UiPanel02.height = "160px";
             UiPanel02.fontSize = "14px";
             UiPanel02.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
             UiPanel02.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-            advancedTexture.addControl(UiPanel02);
+            advancedTexture.addControl(UiPanel02);*/
 
             // Animations
             var alpha = Math.PI;

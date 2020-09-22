@@ -1,6 +1,15 @@
 let ui = document.getElementById('ui');
 let plainfo = document.getElementById('plainfo');
 
+function computeLinePoints() {
+    sceneO.linePoints = [];
+    let w = sceneO.scene.getEngine().getRenderWidth();
+    let h = sceneO.scene.getEngine().getRenderWidth();
+    sceneO.linePoints.push(new BABYLON.Vector2(w * 0.52, h * 0.22));
+    sceneO.linePoints.push(new BABYLON.Vector2(w * 0.64, h * 0.08));
+}
+//computeLinePoints();
+
 canvas.addEventListener('click', () => {
     let pickRes = sceneO.scene.pick(sceneO.scene.pointerX, sceneO.scene.pointerY);
     if (pickRes.pickedMesh.info) {
@@ -40,6 +49,20 @@ function showPlanetInfo(name, info) {
             sceneO.mainCamera.setTarget(sceneO.sun);
         });
     backbtn.style.float = 'right';
+
+    // drawing lines
+    //if (sceneO.pntLine)
+        //sceneO.pntLine.dispose();
+
+    /*let line = new BABYLON.GUI.Line();
+    line.x1 = sceneO.linePoints[0].x;
+    line.y1 = sceneO.linePoints[0].y;
+    line.x2 = sceneO.linePoints[1].x;
+    line.y2 = sceneO.linePoints[1].y;
+    line.lineWidth = 2;
+    line.color = "white";
+    sceneO.advTex.addControl(line);
+    sceneO.pntLine = line;*/
 }
 
 // setup main ui
@@ -76,9 +99,11 @@ function setupMainUI() {
     uiO.plate.appendChild(para.p);
 
     let btn = createButton(ui, 'Learn about Orbits!', () => {
-            sceneO.scene = sceneO.space;
+            //sceneO.scene = sceneO.earthScene;
             removeElems(ui);
-            setupGUI();
+            removeElems(plainfo);
+            setupOrbitScenes();
+            //setupGUI();
         });
     btn.style.marginTop = '3em';
     btn.style.marginLeft = '2em';
