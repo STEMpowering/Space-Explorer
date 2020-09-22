@@ -66,11 +66,13 @@
         
             // Setup camera
             var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, 0, BABYLON.Vector3.Zero(), scene);
+            sceneO.mainCamera = camera;
             camera.setPosition(new BABYLON.Vector3(0, 1000, -1000));
             camera.attachControl(canvas, true);
         
             // sun sphere - size decreased by 20x
             var sun = BABYLON.MeshBuilder.CreateSphere("Sun", {diameter: 69.635, diameterX: 69.635}, scene);
+            sceneO.sun = sun;
         	sun.position = new BABYLON.Vector3(0, 0, 0);
             var material = new BABYLON.StandardMaterial("sunmaterial", scene);
             sun.material = material;

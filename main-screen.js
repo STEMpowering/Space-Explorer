@@ -3,9 +3,11 @@ let plainfo = document.getElementById('plainfo');
 
 canvas.addEventListener('click', () => {
     let pickRes = sceneO.scene.pick(sceneO.scene.pointerX, sceneO.scene.pointerY);
-    removeElems(plainfo);
     if (pickRes.pickedMesh.info) {
+        removeElems(plainfo);
         showPlanetInfo(pickRes.pickedMesh.name, pickRes.pickedMesh.info);
+        // change view to proper planet
+        sceneO.mainCamera.setTarget(pickRes.pickedMesh);
     }
 });
 
@@ -32,6 +34,12 @@ function showPlanetInfo(name, info) {
     plO.plate.appendChild(descrip.p);
 
     plainfo.style.width = '35%';
+
+    let backbtn = createButton(plainfo,'Back to the sun!', () => {
+            removeElems(plainfo);
+            sceneO.mainCamera.setTarget(sceneO.sun);
+        });
+    backbtn.style.float = 'right';
 }
 
 // setup main ui
