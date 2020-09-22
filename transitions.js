@@ -526,7 +526,7 @@ let handlers = [
             }; 
             sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
 
-            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, 0.00021);
 
             // delete lines if too many
             sceneO.orbitDeleter = () => {
@@ -622,7 +622,7 @@ let handlers = [
             }; 
             sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
 
-            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, 0.00021);
             
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
@@ -712,7 +712,7 @@ let handlers = [
             }; 
             sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
 
-            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, 0.00021);
             
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
@@ -807,7 +807,7 @@ let handlers = [
             }; 
             sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
 
-            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, 0.00021);
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };
         fireBtn.style.color = 'red';
@@ -923,7 +923,7 @@ let handlers = [
             }; 
             sceneO.scene.registerBeforeRender(sceneO.ballDisabler)
 
-            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, .00008);
+            sceneO.orbitFunc = runOrbit(ball, sceneO.space.earth.position, orbitPoints, orbitElems, sceneO.scene, 0.00021);
             
         });
         //fireHandle = () => { cannon.fire(10); fireBtn.style.opacity = '0.5'; };

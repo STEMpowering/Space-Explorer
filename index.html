@@ -55,7 +55,7 @@
             var scene = new BABYLON.Scene(engine);
             scene.clearColor = BABYLON.Color3.Black();
 
-            let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 5000 }, scene);
+            let skydome = new BABYLON.MeshBuilder.CreateSphere('skydome', { diameter: 10000 }, scene);
             let axis = new BABYLON.Vector3(0,0,1);
             skydome.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(axis, Math.PI / 2);
 
