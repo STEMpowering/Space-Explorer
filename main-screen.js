@@ -47,7 +47,6 @@ function showPlanetInfo(name, info) {
     let backbtn = createButton(plainfo,'Back to the sun!', () => {
             removeElems(plainfo);
             sceneO.mainCamera.setTarget(sceneO.sun);
-            sceneO.pntLine.dispose();
         });
     backbtn.style.float = 'right';
 
@@ -100,9 +99,11 @@ function setupMainUI() {
     uiO.plate.appendChild(para.p);
 
     let btn = createButton(ui, 'Learn about Orbits!', () => {
-            sceneO.scene = sceneO.space;
+            //sceneO.scene = sceneO.earthScene;
             removeElems(ui);
-            setupGUI();
+            removeElems(plainfo);
+            setupOrbitScenes();
+            //setupGUI();
         });
     btn.style.marginTop = '3em';
     btn.style.marginLeft = '2em';

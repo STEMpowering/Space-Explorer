@@ -127,25 +127,30 @@ let handlers = [
         let uiO = setupBasicUI(ui); 
         uiO.pContent.textContent = 'Let\'s learn how orbits really work!'; 
         setupButton(uiO.nextBtn, nextBtnHandler);  
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'First, let\'s understand how things move here on Earth.';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         sceneO.scene = sceneO.earthScene;
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'When we\'re close the ground, we can assume the ground to be essentially flat, and things fall straight toward it due to gravity.'
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Let\'s do a little demonstration!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let cannon = sceneO.earth.cannon;
+        //console.log(sceneO.earth.cannon);
         cannon.rotateTube(90);
 
         let uiO = setupBasicUI(ui);
@@ -192,11 +197,13 @@ let handlers = [
         ul.style.paddingTop = '0';
 
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Let\'s do that again, except with an arrow showing the speed and direction of the ball!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let cannon = sceneO.earth.cannon;
@@ -248,6 +255,7 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'If you\'re wondering, the reason the speed arrow moves so suddenly on the ground is due to the ball\'s movement being reversed immediately on collision.';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let uiO = setupBasicUI(ui);
@@ -261,6 +269,7 @@ let handlers = [
         delete sceneO.velDrawer;
         sceneO.velLine.dispose();
         delete sceneO.velLine;
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let cannon = sceneO.earth.cannon;
@@ -274,14 +283,14 @@ let handlers = [
         // create fire button
         let fireBtn = createButton(ui, 'Fire!', () => { 
             // line drawing function for ball
-            sceneO.ballPath = new Set(); // store ball trajectory for deletion later
+            sceneO.ballPath = []; // store ball trajectory for deletion later
             let prevBallPos = {};
             let ballI = 0;
             sceneO.pathDrawer = () => {
                 if (prevBallPos) {
                     let line = BABYLON.MeshBuilder.CreateLines('ballLine' + ballI, {points: [prevBallPos, cannon.ball.position]}, sceneO.scene);
                     line.color = BABYLON.Color3.Green();
-                    sceneO.ballPath.add(line);
+                    sceneO.ballPath.push(line);
                     line.parent = cannon.node;
                 }
                 prevBallPos = cannon.ball.position;
@@ -333,16 +342,19 @@ let handlers = [
 
         let camera = sceneO.earth.camera;
         camera.setPosition(new BABYLON.Vector3(-900, 50, -400));
+        //addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Do you see that funny looking curve?';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'That shape is called a parabola, and that\'s the shape all objects make if they\'re moving and gravity is pulling with constant force on it!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let uiO = setupBasicUI(ui);
@@ -429,6 +441,7 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Now, when we get to bigger scales, such as space, and higher speeds, we have to take into account the curvature of the Earth...';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         sceneO.scene = sceneO.spaceScene;
@@ -449,26 +462,31 @@ let handlers = [
         cannon.node.scaling = new BABYLON.Vector3(2,2,2);
 
         sceneO.space.camera.setPosition(new BABYLON.Vector3(0,80,60));
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'This time, however, we brought our cannon over, and we scaled it up.';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'This means that, when we fire this cannon, the ball will be moving much faster than it was on Earth!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Hence, now we must consider the curvature of the Earth for our projectiles.';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Let\'s fire one at low power, shall we?';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let cannon = sceneO.space.cannon;
@@ -550,11 +568,13 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = '...Alright, was that really unexpected?';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'But, let\'s see what happens if we increase the power a bit!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let cannon = sceneO.space.cannon;
@@ -635,16 +655,19 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Do you see that?';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'It\'s as if the ball is curving around the Earth!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Let\'s keep trying slightly more power for each run!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let cannon = sceneO.space.cannon;
@@ -725,21 +748,25 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'The ball isn\'t going only downwards anymore...';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Instead, it keeps getting attracted toward the Earth.';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
-        uiO.pContent.textContent = 'It\'s as if the ball keeps trying to hit Earth, but it\'s missing everytime due to it\'s speed!';
+        uiO.pContent.textContent = 'It\'s as if the ball keeps trying to hit Earth, but it\'s missing because of its speed!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Let\'s increase the power one more time!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let cannon = sceneO.space.cannon;
@@ -819,36 +846,43 @@ let handlers = [
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'The ball is no longer hitting the Earth...';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Awesome! You\'ve just put your first object into orbit!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'That\'s essentially what an orbit is - launching something so fast that it misses the body it is orbitting.';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'That is what the cannon ball is doing, and that is what the Moon does too!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'That is why, even though the Earth has gravity, the Moon doesn\'t come crashing into the Earth!';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'This is also what the rest of the planets do around the Sun.';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler) => {
         let uiO = setupBasicUI(ui);
         uiO.pContent.textContent = 'Anyway, as a prize for your achievement, you can now mess around with the cannon and see what kind of orbits you can make! :D';
         setupButton(uiO.nextBtn, nextBtnHandler);
+        addRetBtn(ui, sceneO);
     },
     (ui, nextBtnHandler, sceneO) => {
         let cannon = sceneO.space.cannon;
@@ -935,13 +969,26 @@ let handlers = [
         uiO.p.style.padding = '3em';
 
         // insert button to return to main screen
-        let retbtn = createButton(ui, 'Return to Main', () =>{
-                sceneO.scene = sceneO.main;
-                removeElems(ui);
-                setupMainUI();
-            });
-        retbtn.style.margin = '1em';
-        retbtn.style.marginLeft = '8em';
-        ui.appendChild(retbtn);
+        addRetBtn(ui, sceneO);
     }
 ];
+
+// insert button to return to main screen
+function addRetBtn(ui, sceneO) {
+    // insert button to return to main screen
+    let retbtn = createButton(ui, 'Return to the Sun', () =>{
+        sceneO.scene = sceneO.main;
+        removeElems(ui);
+        setupMainUI();
+
+        if (sceneO.earthScene)
+            sceneO.earthScene.dispose();
+        if (sceneO.spaceScene)
+            sceneO.spaceScene.dispose();
+    });
+    retbtn.style.margin = '1em';
+    //retbtn.style.marginLeft = '8em';
+    ui.appendChild(retbtn);
+
+    return retbtn;
+}

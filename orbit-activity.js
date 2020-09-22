@@ -78,7 +78,7 @@ const createEarthScene = function() {
         ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
         cannon = cannonsSetup(scene, ground);
 
-        //setupGUI();
+        setupGUI();
     });
 
     function cannonsSetup(scene, ground) {
@@ -202,8 +202,18 @@ const createSpaceScene = function() {
     return scene;
 }
 
-let sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), earth: {cannon, camera}, space }; // pack up required refs
-sceneO.scene = sceneO.earthScene;
+//let sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), earth: {cannon, camera}, space }; // pack up required refs
+//sceneO.scene = sceneO.earthScene;
+let sceneO = {};
+function setupOrbitScenes() {
+    sceneO.earthScene = createEarthScene();
+    //console.log(sceneO.earthScene);
+    sceneO.spaceScene = createSpaceScene();
+    sceneO.earth = {cannon, camera};
+    //sceneO.space = space;
+    //sceneO = { earthScene: createEarthScene(), spaceScene: createSpaceScene(), earth: {cannon, camera}, space };
+    sceneO.scene = sceneO.earthScene;
+}
 
 /*engine.runRenderLoop(function() {
     sceneO.scene.render();
